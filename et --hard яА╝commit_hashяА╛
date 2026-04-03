@@ -1,0 +1,477 @@
+[33mcommit aff5f4218260df82b4e010bd275fc48702dd7fb7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 12 16:09:32 2026 +0530
+
+    added project in employee list
+
+[33mcommit c0dff98a326d25b687307f4544c9b76c916e7b6b[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 12 14:12:06 2026 +0530
+
+    test 9
+
+[33mcommit 3727b5fad1f0ccfdcfac9312a98675b8fde5d405[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 12 14:06:08 2026 +0530
+
+    create employee and employee list created and functional
+
+[33mcommit da0bfee3f3176188cfabfd09249b0d79880c77fe[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 11 17:42:33 2026 +0530
+
+    MADE THE HIERARCHY SYSTEM FUNCTIONAL AND ONLY USER WITH HIGHER AUTHORITY CAN DELETE PROJECTS ADN SEE PROJECTS OF LOWER LEVEL ROLES
+
+[33mcommit 75a82239c088e46349b7f29bd7c3c87362a4e760[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 11 17:26:46 2026 +0530
+
+    added role check to projects
+
+[33mcommit 5f4453df167e7c629851e4ae0fb8ca8c7b25e4ce[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 17:24:46 2026 +0530
+
+    Resolved report project card3
+
+[33mcommit 96ac6c0bef9815401a72b43500f3c1cfa836f53b[m
+Merge: bf83885 9c5835e
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 17:00:01 2026 +0530
+
+    Merge branch 'main' of https://github.com/Bhusaresuraj/FMS_IV
+
+[33mcommit bf8388584c377021666724288c49af387732da6e[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 16:59:13 2026 +0530
+
+    Resolved report project card master login1
+
+[33mcommit 9c5835ebf63f492c2345df62492d34281a7dd1cb[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 11 16:55:18 2026 +0530
+
+    currently adding delete projects
+
+[33mcommit b1a851fc2e0ba7c7bc6dfbec0b1d6bcfe8791214[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 16:53:15 2026 +0530
+
+    Resolved report project card master login
+
+[33mcommit 10361a95edef0bc6bf851e5c75b22de045160b04[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 16:18:48 2026 +0530
+
+    Resolved report project card
+
+[33mcommit c09532c477865aa674c3d77f09025bb71f30f1b7[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 15:49:19 2026 +0530
+
+    Resolved
+
+[33mcommit 14197d61fea61b11e3db7cc069bda869fa4255cd[m
+Merge: 7622eb7 e69ee20
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 15:48:36 2026 +0530
+
+    Merge branch 'main' of https://github.com/Bhusaresuraj/FMS_IV
+
+[33mcommit 7622eb74ab1cd6133649454c679177f8c1ffc95f[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 11 15:47:07 2026 +0530
+
+    Resolved merge conflict
+
+[33mcommit e69ee200a9e99b01eb840caf93b285761e97ce09[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 11 14:44:48 2026 +0530
+
+    backup 9
+
+[33mcommit 13ea0af54b0c121c3a3a851f4c97acad2ddd63fd[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 11 14:05:11 2026 +0530
+
+    added update project and update date to all user folders
+
+[33mcommit 8529312b48bf5dbd6fd895986561165c444e9b4f[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 11 13:07:55 2026 +0530
+
+    replaced the work duralux with IV
+
+[33mcommit 434bb4721bae2eea67fc6c653e8c740b754d2be6[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 18:22:02 2026 +0530
+
+    made create project with assign user feature functional to all users
+
+[33mcommit 01f7013cee6b26e855a6ab23eba848d66990b2a6[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 18:11:46 2026 +0530
+
+    made employee functional in project-create.php
+
+[33mcommit 2d9af6dd37016e05d5d9df2a0ff4ad26c5773dee[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 16:34:06 2026 +0530
+
+    added new projects page in all users
+
+[33mcommit a65ff1d54f5e55773169a403fb07681a6bb58af0[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 14:51:14 2026 +0530
+
+    made dates and status editable in projects.php
+
+[33mcommit 5526ebe32d16bdd14f1a39bdc74e407eb3e160bc[m
+Merge: bcf92ac 855cf8b
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Tue Feb 10 14:19:16 2026 +0530
+
+    Merge branch 'main' of https://github.com/Bhusaresuraj/FMS_IV
+
+[33mcommit bcf92acc5782dcbfca8c5f1cb37f3a09cb1d4f93[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Tue Feb 10 14:18:48 2026 +0530
+
+    admin project dasboard
+
+[33mcommit 855cf8b89a21647287f101115928c7bdf5b85ae4[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 14:02:33 2026 +0530
+
+    added footer in users
+
+[33mcommit b14159f54c0c9ec5b29d0fe237e8fdc7453f9ada[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 14:01:58 2026 +0530
+
+    made users page functional
+
+[33mcommit c9b909791d8afc933e8aafec1bf88e63b221bb42[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 13:53:45 2026 +0530
+
+    fixed invoice view in super
+
+[33mcommit ef1d876bb929a04d51680bde4c40542e8d020ea4[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 13:50:20 2026 +0530
+
+    added everthing to admin folder as well as super folder
+
+[33mcommit bded26a517206b1d722805930460f9e3e96f8802[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 13:30:28 2026 +0530
+
+    made customer and invoice functional in super
+
+[33mcommit 2ff3cf17a67a703639c962d8a98a73c94b8e50f9[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Tue Feb 10 13:18:03 2026 +0530
+
+    test3
+
+[33mcommit 158e0d8d64a56755f43a8e658d94aec6658a88ae[m
+Merge: c36441d 6420e7d
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Tue Feb 10 13:16:13 2026 +0530
+
+    super admin dashboard fix
+
+[33mcommit c36441de739b6e8f5777d59e22e095233630839a[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Tue Feb 10 13:14:41 2026 +0530
+
+    super admin dashboard fix
+
+[33mcommit 6420e7d89d745737dff360b732e1fb8965b971a3[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 18:10:59 2026 +0530
+
+    edit project still incomplete
+
+[33mcommit 1fd18975f715525fb56c31ac00e674ce2a2d857f[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 17:38:33 2026 +0530
+
+    project edit  still under work
+
+[33mcommit 8e3a6922322ff305e5a981a01fb7c25073f6f046[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 14:03:22 2026 +0530
+
+    backup1
+
+[33mcommit 77db0ea6d322eafdcc544c057c5ce589783af4fd[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 13:24:52 2026 +0530
+
+    added projects page to al users
+
+[33mcommit 46b2f39b895e6cc54d4b6e2db19d3061ff59921f[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Mon Feb 9 03:17:10 2026 +0530
+
+    Master admin fixed
+
+[33mcommit 5bc1a488a0a60c276f66352a45949acbd6777df3[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 02:59:10 2026 +0530
+
+    changes for all users in UI
+
+[33mcommit 36ba6346821b2625dde5cfa1cfc5ef084399bce9[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 02:35:20 2026 +0530
+
+    added tcpdf
+
+[33mcommit 9a1ad8f0a06590f39665cc7cdef816e31afa4076[m
+Merge: 77a1d4f 84b99ee
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Mon Feb 9 02:16:07 2026 +0530
+
+    Merge branch 'main' of https://github.com/Bhusaresuraj/FMS_IV
+
+[33mcommit 77a1d4fbe2518c0ace4eef83e9d674291af33d36[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Mon Feb 9 02:14:18 2026 +0530
+
+    Master admin fixed
+
+[33mcommit 84b99eef17f48c32522f561832c9f26a26c39806[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 01:58:35 2026 +0530
+
+    Create project finally works(spent 7 hours fixing)
+
+[33mcommit 7ca839bec62758c5a0aaa2f2932d7175e458ec56[m
+Merge: 56cd0c9 23cbe56
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Mon Feb 9 01:43:39 2026 +0530
+
+    Resolved merge conflict in db.sql
+
+[33mcommit 56cd0c96a51f90ff50f64305eb6119888fbd965e[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Mon Feb 9 01:41:09 2026 +0530
+
+    Master admin view IMS fixed
+
+[33mcommit 23cbe56a0783c69c545ed8aa8f6c60c2f428ef27[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 9 00:41:05 2026 +0530
+
+    starting again on project create, removed useelss fields from template, now adding db connections
+
+[33mcommit 13bc554497dda9ea2307a72c45856b6f4bc0093b[m
+Merge: da906e0 95aeba6
+Author: Kishna <khalemani19@gmail.com>
+Date:   Sun Feb 8 23:44:35 2026 +0530
+
+    resolve merge conflicts
+
+[33mcommit da906e017ad44b8828015b85439b46299b9692bd[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Sun Feb 8 23:36:44 2026 +0530
+
+    still create proect not working
+
+[33mcommit 95aeba6c1637be436289fb3414a4be679addd144[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Sun Feb 8 23:17:13 2026 +0530
+
+    Master admin view customer fixed
+
+[33mcommit b8d5f3a3cfd1e98afa751f78883f4053db665ecd[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Sun Feb 8 21:24:19 2026 +0530
+
+    added coloums in db
+
+[33mcommit 1a4af5828e2506d7c32549d4c81adf21e58971a0[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Sun Feb 8 21:22:32 2026 +0530
+
+    Master admin customer changes
+
+[33mcommit f2f93a2b29b609e448ccaa556f2e130f51e1af17[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Sun Feb 8 21:01:48 2026 +0530
+
+    Restored structure of create projects in super/projectscreate.php , form and db connection pending
+
+[33mcommit bf769a5737b56cd7a525556621b3a040d2c8d1e5[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Fri Feb 6 15:46:53 2026 +0530
+
+    test
+
+[33mcommit 2ee012bd125141cc56aac1af46f8258ee578e609[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 5 18:16:20 2026 +0530
+
+    Almost made the form working
+
+[33mcommit 4ecffcc5e0cbcc9a5a8bac615757a3daab015f3b[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 17:56:11 2026 +0530
+
+    Master admin client creating
+
+[33mcommit 8bcfd77c71bc99f64f48eded7e87e42eaab05335[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 17:08:47 2026 +0530
+
+    Master admin  changes
+
+[33mcommit e49bfc9d975ad30420e9d107a24a620211474d82[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 17:07:03 2026 +0530
+
+    Master admin changes
+
+[33mcommit a10218a9d4a7eb5ef9bfae48fbb54fb0a6b20476[m
+Merge: 96b09bf 2e57bdc
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 16:55:00 2026 +0530
+
+    Merge branch 'main' of https://github.com/Bhusaresuraj/FMS_IV
+
+[33mcommit 96b09bf6a4facdf10fd86c75d746311008395f01[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 16:54:46 2026 +0530
+
+    Master admin sidebar changes
+
+[33mcommit 2e57bdcfcff5b0f7aaea31da0f68b8a764d93eaa[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 5 16:45:28 2026 +0530
+
+    made chhanges in db.sql added queries that changes the structure of tables and adds new tables that will be required inn the future
+
+[33mcommit 5dffc5ab4c5571eabacea168d3e8d69234302648[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 15:43:51 2026 +0530
+
+    Master admin Dashboard changes
+
+[33mcommit a72cd054913b513bb9a4d36a17b370ed006a067a[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 5 15:43:09 2026 +0530
+
+    added auth in adashboard.php
+
+[33mcommit 2eef3df748f5cc77ffcc9ab6654ceec9b97f9c51[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 5 15:34:15 2026 +0530
+
+    added mster role in db and addded its redirect to index.php
+
+[33mcommit bc8ac3295326d385f344bbab0c804967b3a130ef[m
+Merge: c39578e cf886c8
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 14:09:30 2026 +0530
+
+    Merge branch 'main' of https://github.com/Bhusaresuraj/FMS_IV
+    Fixed PDF upload feature in admin panel# the commit.
+
+[33mcommit c39578e2424a4156800fb13cf14d420962460147[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Thu Feb 5 14:08:50 2026 +0530
+
+    Master admin Dashboard
+
+[33mcommit cf886c863360faf06338a2916a95adf74bd32a97[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 5 14:08:18 2026 +0530
+
+    no comment
+
+[33mcommit 3f43345b517d11acdb3d2c2281e62adb2e692ad5[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Thu Feb 5 13:30:55 2026 +0530
+
+    added header.php and theme_customizer.php in super
+
+[33mcommit a98d58c0054242210f4e676e4ccaa25c788bffa7[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 4 18:59:58 2026 +0530
+
+    added db coneection of projects successfully
+
+[33mcommit 413e6f4cfc8f6ebfbe4475dd47b0b3065e76d4f4[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 4 16:32:37 2026 +0530
+
+    put navbarcode in sidebarcode
+
+[33mcommit a6e341d5db41168b215b677f7e1ef2b53f639ab7[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 4 16:26:18 2026 +0530
+
+    admin added assests
+
+[33mcommit 3ff994b26c539181b47603069831704bfc1d666b[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 4 16:22:58 2026 +0530
+
+    admin dashboard delete
+
+[33mcommit 55185e9fa9fe985947cadc0b417c251698e616e7[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 4 16:21:39 2026 +0530
+
+    admin dashboard
+
+[33mcommit 7cc5f9bcf1ce0ed2de7959edf4911ef95378e2db[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 4 16:09:15 2026 +0530
+
+    Started working on superadmin dashboard nd navbar
+
+[33mcommit ddb19ebe1d31bd543d856411d9012868b7194edc[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Wed Feb 4 14:10:59 2026 +0530
+
+    mailer1
+
+[33mcommit 7b1a91ce2ac4619edbbce2f8b6b0aa4c1a2da120[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Wed Feb 4 13:15:29 2026 +0530
+
+    Worked on login authentication
+
+[33mcommit 443b4739f77dd8519c4f9752c66844624164a3a9[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 2 15:24:40 2026 +0530
+
+    added db.sql and db.php
+
+[33mcommit 74c56ccd9e1d91d58536328b13c31ac7f648b0d6[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 2 14:01:08 2026 +0530
+
+    Role Folder created updated the log
+
+[33mcommit 4eb77887f79e9944395e33b015dc51d82d4e3137[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 2 13:36:05 2026 +0530
+
+    added IV logo in images as Logo_Iv
+
+[33mcommit d04bd0f5c73916517b495937c17fb43d4bfd635d[m
+Author: Kishna <khalemani19@gmail.com>
+Date:   Mon Feb 2 13:21:50 2026 +0530
+
+    changed all files to .php and all href to .php
+
+[33mcommit 377bd2dcab6749095aa0f68630219f75eff83258[m
+Author: Suraj Bhusare <surajbhusare@Surajs-MacBook-Air.local>
+Date:   Mon Feb 2 12:57:04 2026 +0530
+
+    first commit

@@ -1,0 +1,9 @@
+[28-Feb-2026 10:30:41 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in /home3/infinqcp/public_html/FMS/FMS_IV-main/Super/projects-store.php on line 7
+[28-Feb-2026 10:43:50 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Too many connections in /home3/infinqcp/public_html/FMS/FMS_IV-main/config/db.php:6
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/config/db.php(6): mysqli_connect('localhost', 'infinqcp_fms', Object(SensitiveParameterValue), 'infinqcp_fms')
+#1 /home3/infinqcp/public_html/FMS/FMS_IV-main/super/sidebar.php(266): require_once('/home3/infinqcp...')
+#2 /home3/infinqcp/public_html/FMS/FMS_IV-main/super/invoice-create.php(18): include('/home3/infinqcp...')
+#3 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/config/db.php on line 6
+[28-Feb-2026 10:45:05 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in /home3/infinqcp/public_html/FMS/FMS_IV-main/super/projects-store.php on line 7

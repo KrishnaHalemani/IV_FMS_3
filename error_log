@@ -1,0 +1,117 @@
+[27-Feb-2026 09:25:32 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in /home3/infinqcp/public_html/FMS/FMS_IV-main/projects-store.php on line 7
+[27-Feb-2026 10:43:14 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in /home3/infinqcp/public_html/FMS/FMS_IV-main/projects-store.php on line 7
+[28-Feb-2026 10:06:44 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:06:44 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/reports-project.php(7): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:06:44 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:06:44 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/reports-project.php(7): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:07:19 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:07:19 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/reports-project.php(7): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:07:30 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:07:30 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/reports-project.php(7): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:07:40 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:07:40 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:19 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:19 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:50 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:50 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:51 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:51 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:52 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:52 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:57 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:08:57 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:09:39 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:09:39 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:10:48 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:10:48 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:12:53 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:12:53 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:12:54 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:12:54 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:15:23 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:15:23 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:15:26 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:15:26 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(61): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:15:33 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:15:33 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(64): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:16:37 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:16:37 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(64): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:16:37 UTC] PHP Warning:  require_once(/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php): Failed to open stream: No such file or directory in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[28-Feb-2026 10:16:37 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home3/infinqcp/public_html/FMS/FMS_IV-main/../config/roles.php' (include_path='.:/opt/cpanel/ea-php82/root/usr/share/pear') in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php:2
+Stack trace:
+#0 /home3/infinqcp/public_html/FMS/FMS_IV-main/index.php(64): include()
+#1 {main}
+  thrown in /home3/infinqcp/public_html/FMS/FMS_IV-main/sidebar.php on line 2
+[31-Mar-2026 11:14:44 UTC] PHP Notice:  session_start(): Ignoring session_start() because a session is already active in /home3/infinqcp/public_html/FMS/FMS_IV-main/projects-store.php on line 7
