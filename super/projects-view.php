@@ -80,9 +80,9 @@ if (isset($_GET['updated']) && $_GET['updated'] === '1') {
 }
 
 $projectStmt = $conn->prepare("
-    SELECT p.*, e.name AS assigned_employee_name
+    SELECT p.*, u.username AS assigned_employee_name
     FROM projects p
-    LEFT JOIN employees e ON p.assigned_user_id = e.id
+    LEFT JOIN users u ON p.assigned_user_id = u.id
     WHERE p.id = ?
 ");
 $projectStmt->bind_param("i", $project_id);
@@ -103,7 +103,7 @@ if (!array_key_exists($currentBillingType, $billingTypeOptions)) {
 }
 
 $employees = [];
-$employeeResult = $conn->query("SELECT id, name FROM employees ORDER BY name");
+$employeeResult = $conn->query("SELECT id, username AS name FROM users ORDER BY username");
 if ($employeeResult) {
     while ($row = $employeeResult->fetch_assoc()) {
         $employees[] = $row;

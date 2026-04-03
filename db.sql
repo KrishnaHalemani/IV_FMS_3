@@ -40,7 +40,10 @@ CREATE TABLE projects (
 ALTER TABLE projects
 ADD COLUMN project_type VARCHAR(20),
 ADD COLUMN project_manage VARCHAR(20),
+ADD COLUMN project_code VARCHAR(50),
+ADD COLUMN project_priority VARCHAR(20),
 ADD COLUMN project_hours INT,
+ADD COLUMN estimated_budget DECIMAL(12,2),
 ADD COLUMN billing_type VARCHAR(50),
 ADD COLUMN project_status VARCHAR(30),
 ADD COLUMN release_date DATE,
@@ -179,6 +182,9 @@ CREATE TABLE invoice_items (
 ALTER TABLE projects DROP COLUMN status;
 ALTER TABLE projects
 CHANGE client_id customer_id INT(11);
+
+ALTER TABLE projects
+ADD COLUMN related_invoice_id INT NULL AFTER customer_id;
 
 CREATE TABLE IF NOT EXISTS students (
     id INT AUTO_INCREMENT PRIMARY KEY,

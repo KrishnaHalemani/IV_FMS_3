@@ -20,6 +20,24 @@ $res = $conn->query("SELECT id, name FROM employees ORDER BY name");
 while ($row = $res->fetch_assoc()) {
     $employees[] = $row;
 }
+
+$customers = [];
+$customerResult = $conn->query("SELECT id, customer_name, company_name FROM customers ORDER BY customer_name");
+if ($customerResult) {
+    while ($row = $customerResult->fetch_assoc()) {
+        $customers[] = $row;
+    }
+}
+
+$invoices = [];
+$invoiceResult = $conn->query("SELECT id, invoice_number, to_name, grand_total, currency FROM invoices ORDER BY id DESC LIMIT 100");
+if ($invoiceResult) {
+    while ($row = $invoiceResult->fetch_assoc()) {
+        $invoices[] = $row;
+    }
+}
+
+$projectCode = 'PRJ-' . date('Ymd-His');
 ?>
 
 
@@ -182,66 +200,54 @@ while ($row = $res->fetch_assoc()) {
                         <div class="col-lg-12">
                             <div class="card border-top-0">
                                 <div class="card-body p-0" id="project-create-steps">
-                                    <div class="step-title border-top">Type</div>
+                                    <div class="step-title border-top">Setup</div>
                                     <section class="step-body mt-4">
                                         <fieldset>
                                             <div class="mb-5">
-                                                <h2 class="fs-16 fw-bold">Project type</h2>
-                                                <p class="text-muted">Select project type first.</p>
-                                                <label class="error" style="display: none"></label>
+                                                <h2 class="fs-16 fw-bold">Project setup</h2>
+                                                <p class="text-muted">Capture the business context first so this project is useful from day one.</p>
                                             </div>
                                             <fieldset>
-                                                <label class="w-100" for="project_personal">
-                                                    <input class="card-input-element" type="radio" name="project_type" id="project_personal" value="personal" required>
-                                                    <span class="card card-body d-flex flex-row justify-content-between align-items-center">
-                                                        <span class="hstack gap-3">
-                                                            <span class="avatar-text">
-                                                                <i class="feather-user"></i>
-                                                            </span>
-                                                            <span>
-                                                                <span class="d-block fs-13 fw-bold text-dark">Personal Project</span>
-                                                                <span class="d-block text-muted mb-0">If you need more info, please check it out</span>
-                                                            </span>
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                                <label class="w-100" for="project_team">
-                                                    <input class="card-input-element" type="radio" name="project_type" id="project_team" value="team">
-                                                    <span class="card card-body d-flex flex-row justify-content-between align-items-center">
-                                                        <span class="hstack gap-3">
-                                                            <span class="avatar-text">
-                                                                <i class="feather-users"></i>
-                                                            </span>
-                                                            <span>
-                                                                <span class="d-block fs-13 fw-bold text-dark">Team Project</span>
-                                                                <span class="d-block text-muted mb-0">Create corporate account to manage users</span>
-                                                            </span>
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                            </fieldset>
-                                        </fieldset>
-                                        <hr class="mb-5">
-                                        <fieldset>
-                                            <div class="mb-5">
-                                                <h2 class="fs-16 fw-bold">Project assignment</h2>
-                                                <p class="text-muted">Assign this project to a lower-role user in your reporting tree.</p>
-                                                <label class="error" style="display: none"></label>
-                                            </div>
-                                            <fieldset>
+                                                <input type="hidden" name="project_type" value="team">
                                                 <input type="hidden" name="project_manage" value="hierarchy">
-                                                <div class="mb-4">
-                                                    <label for="assignedUserId" class="form-label">Assign to user <span class="text-danger">*</span></label>
-                                                    <select id="assignedUserId" class="form-select" name="assigned_user_id" required>
-                                                        <option value="">Select a user</option>
-                                                        <?php foreach ($assignableUsers as $assignableUser): ?>
-                                                            <option value="<?= (int) $assignableUser['id'] ?>">
-                                                                <?= htmlspecialchars($assignableUser['username']) ?> (<?= htmlspecialchars(ucfirst((string) $assignableUser['role'])) ?>)
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
+                                                <div class="row g-3">
+                                                    <div class="col-md-4">
+                                                        <label for="projectCode" class="form-label">Project Code</label>
+                                                        <input type="text" class="form-control" id="projectCode" name="project_code" value="<?= htmlspecialchars($projectCode) ?>" readonly>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="projectPriority" class="form-label">Priority <span class="text-danger">*</span></label>
+                                                        <select id="projectPriority" class="form-select" name="project_priority" required>
+                                                            <option value="medium" selected>Medium</option>
+                                                            <option value="low">Low</option>
+                                                            <option value="high">High</option>
+                                                            <option value="critical">Critical</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="projectStatus" class="form-label">Project Status <span class="text-danger">*</span></label>
+                                                        <select id="projectStatus" class="form-select" name="project_status" required>
+                                                            <option value="draft" selected>Draft</option>
+                                                            <option value="planned">Planned</option>
+                                                            <option value="active">Active</option>
+                                                            <option value="on_hold">On Hold</option>
+                                                            <option value="completed">Completed</option>
+                                                            <option value="cancelled">Cancelled</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="assignedUserId" class="form-label">Project Owner <span class="text-danger">*</span></label>
+                                                        <select id="assignedUserId" class="form-select" name="assigned_user_id" required>
+                                                            <option value="">Select a project owner</option>
+                                                            <?php foreach ($assignableUsers as $assignableUser): ?>
+                                                                <option value="<?= (int) $assignableUser['id'] ?>">
+                                                                    <?= htmlspecialchars($assignableUser['username']) ?> (<?= htmlspecialchars(ucfirst((string) $assignableUser['role'])) ?>)
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div class="alert alert-light border mb-0">
+                                                <div class="alert alert-light border mt-3 mb-0">
                                                     Superadmins can assign projects to admins and users created by them.
                                                 </div>
                                             </fieldset>
@@ -253,68 +259,68 @@ while ($row = $res->fetch_assoc()) {
 
                                         <fieldset>
                                             <div class="mb-5">
-                                                <h2 class="fs-16 fw-bold">Project details</h2>
-                                                <p class="text-muted">You project details goes here.</p>
+                                                <h2 class="fs-16 fw-bold">Scope and commercial details</h2>
+                                                <p class="text-muted">Bind the project to a client and optionally to an IMS invoice.</p>
                                             </div>
                                             <fieldset>
                                                 <div class="mb-4">
                                                     <label for="projectName" class="form-label">Project Name <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="projectName" name="project_name" value="Website design and development" required>
+                                                    <input type="text" class="form-control" id="projectName" name="project_name" placeholder="Website redesign for ABC Corp" required>
                                                 </div>
-                                                <div class="mb-4">
-                                                    <label for="customerName" class="form-label">Customer Name <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Enter customer name..." required>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">
+                                                        <label for="customerId" class="form-label">Linked Client</label>
+                                                        <select id="customerId" class="form-select" name="customer_id">
+                                                            <option value="">Select client</option>
+                                                            <?php foreach ($customers as $customer): ?>
+                                                                <option value="<?= (int) $customer['id'] ?>">
+                                                                    <?= htmlspecialchars($customer['customer_name']) ?><?= !empty($customer['company_name']) ? ' - ' . htmlspecialchars($customer['company_name']) : '' ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="relatedInvoiceId" class="form-label">Linked IMS Invoice</label>
+                                                        <select id="relatedInvoiceId" class="form-select" name="related_invoice_id">
+                                                            <option value="">No linked invoice</option>
+                                                            <?php foreach ($invoices as $invoice): ?>
+                                                                <option value="<?= (int) $invoice['id'] ?>">
+                                                                    #<?= htmlspecialchars((string) $invoice['invoice_number']) ?> - <?= htmlspecialchars((string) $invoice['to_name']) ?> (<?= htmlspecialchars((string) $invoice['currency']) ?> <?= number_format((float) $invoice['grand_total'], 2) ?>)
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div class="mb-4">
-                                                    <label for="description" class="form-label">
-                                                        Project Description <span class="text-danger">*</span>
-                                                    </label>
-
-                                                    <textarea
-                                                        id="description"
-                                                        name="description"
-                                                        class="form-control"
-                                                        rows="5"
-                                                        placeholder="Enter project description..."
-                                                        required></textarea>
-                                                </div>
-
-                                                <div class="mb-4">
-                                                    <label for="ratePerHour" class="form-label">Project Hours<span class="text-danger">*</span></label>
-                                                    <input type="number" class="form-control" id="ratePerHour" name="project_hours" value="20" required>
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="startDate" class="form-label">Start Date <span class="text-danger">*</span></label>
-                                                    <input type="date" class="form-control" id="startDate" name="start_date" required>
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="endDate" class="form-label">End Date <span class="text-danger">*</span></label>
-                                                    <input type="date" class="form-control" id="endDate" name="end_date" required>
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="billingType" class="form-label">Billing type <span class="text-danger">*</span></label>
-                                                    <select id="billingType" class="form-select" name="billing_type">
-                                                        <option value="fixed">Fixed Rate</option>
-                                                        <option value="task_hours">Tasks Hours</option>
-                                                        <option value="project_hours">Project Hours</option>
-                                                    </select>
-                                                </div>
-                                                <div class="mb-4">
-                                                    <label for="projectStatus" class="form-label">Project status <span class="text-danger">*</span></label>
-                                                    <select id="projectStatus" class="form-select" name="project_status">
-                                                        <option value="active">Active</option>
-                                                        <option value="inactive">Inactive</option>
-                                                        <option value="declined">Declined</option>
-                                                        <option value="inprogress">In Progress</option>
-                                                        <option value="finished">Finished</option>
-
-                                                    </select>
+                                                <div class="mb-4 mt-3">
+                                                    <label for="description" class="form-label">Project Brief <span class="text-danger">*</span></label>
+                                                    <textarea id="description" name="description" class="form-control" rows="5" placeholder="Summarize the scope, deliverables, and success criteria..." required></textarea>
                                                 </div>
 
-
-                                                <div class="mb-4">
-                                                    <label for="completionDate" class="form-label">Completion Date</label>
-                                                    <input type="date" class="form-control" id="completionDate" name="completion_date">
+                                                <div class="row g-3">
+                                                    <div class="col-md-4">
+                                                        <label for="ratePerHour" class="form-label">Estimated Hours <span class="text-danger">*</span></label>
+                                                        <input type="number" class="form-control" id="ratePerHour" name="project_hours" min="1" value="20" required>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="billingType" class="form-label">Billing Type <span class="text-danger">*</span></label>
+                                                        <select id="billingType" class="form-select" name="billing_type">
+                                                            <option value="fixed">Fixed Rate</option>
+                                                            <option value="task_hours">Task Hours</option>
+                                                            <option value="project_hours">Project Hours</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <label for="projectBudget" class="form-label">Estimated Budget</label>
+                                                        <input type="number" class="form-control" id="projectBudget" name="estimated_budget" min="0" step="0.01" placeholder="50000">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="startDate" class="form-label">Start Date <span class="text-danger">*</span></label>
+                                                        <input type="date" class="form-control" id="startDate" name="start_date" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <label for="endDate" class="form-label">Target End Date <span class="text-danger">*</span></label>
+                                                        <input type="date" class="form-control" id="endDate" name="end_date" required>
+                                                    </div>
                                                 </div>
                                                 <hr class="mb-5">
 
