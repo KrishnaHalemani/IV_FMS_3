@@ -14,7 +14,6 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('master')) {
     exit('Forbidden');
 }
 
-$notificationUnreadCount = iv_count_unread_notifications($conn, (int) $_SESSION['user_id']);
 ?>
 <!--! ================================================================ !-->
     <!--! [Start] Navigation Manu !-->
@@ -32,15 +31,6 @@ $notificationUnreadCount = iv_count_unread_notifications($conn, (int) $_SESSION[
                 <ul class="nxl-navbar">
                     <li class="nxl-item nxl-caption">
                         <label>Navigation</label>
-                    </li>
-                    <li class="nxl-item">
-                        <a href="notifications.php" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-bell"></i></span>
-                            <span class="nxl-mtext">Notifications</span>
-                            <?php if ($notificationUnreadCount > 0): ?>
-                                <span class="badge bg-danger rounded-pill ms-auto"><?= $notificationUnreadCount ?></span>
-                            <?php endif; ?>
-                        </a>
                     </li>
                     <li class="nxl-item nxl-hasmenu">
                         <a href="javascript:void(0);" class="nxl-link">
@@ -198,7 +188,6 @@ $notificationUnreadCount = iv_count_unread_notifications($conn, (int) $_SESSION[
                         </a>
                         <ul class="nxl-submenu">
                             <li class="nxl-item"><a class="nxl-link" href="./auth-register-cover.php">Register</a></li>
-                            <li class="nxl-item"><a class="nxl-link" href="./logout.php">Logout</a></li>
                         </ul>
                     </li>
                     <!-- <li class="nxl-item nxl-hasmenu">
