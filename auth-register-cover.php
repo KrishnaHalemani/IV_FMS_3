@@ -1,6 +1,7 @@
 <?php
 include "config/db.php";
 require_once __DIR__ . '/config/user_management.php';
+require_once __DIR__ . '/config/notifications.php';
 
 $error = '';
 $success = '';
@@ -49,6 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $insertStmt->bind_param("ssssi", $formData['email'], $formData['username'], $hashedPassword, $formData['role'], $createdBy);
 
             if ($insertStmt->execute()) {
+                $newUserId = (int) $insertStmt->insert_id;
+                if ($createdBy !== null) {
+                    $actorName = (string) ($_SESSION['username'] ?? $_SESSION['email'] ?? 'A manager');
+                    iv_create_notification(
+                        $conn,
+                        $newUserId,
+                        'user_created',
+                        'Your account has been created',
+                        $actorName . ' created your ' . ucfirst($formData['role']) . ' account. You can now sign in and start working in the system.',
+                        null,
+                        $createdBy
+                    );
+                }
                 $success = 'Account created successfully. You can log in now.';
                 $formData = [
                     'email' => '',

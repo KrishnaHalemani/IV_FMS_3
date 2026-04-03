@@ -4,6 +4,7 @@ ini_set('display_errors', 1);
 
 require '../config/db.php';
 require_once __DIR__ . '/../config/user_management.php';
+require_once __DIR__ . '/../config/notifications.php';
 
 session_start();
 
@@ -167,6 +168,8 @@ if (!$stmt->execute()) {
 $project_id = $stmt->insert_id;
 $stmt->close();
 
+$creatorName = (string) ($_SESSION['username'] ?? $_SESSION['email'] ?? 'A manager');
+
 /*
 |--------------------------------------------------------------------------
 | 5. INSERT PROJECT ↔ EMPLOYEE RELATION
@@ -204,6 +207,16 @@ foreach ($milestone_titles as $index => $title) {
 }
 
 $targetStmt->close();
+
+iv_create_notification(
+    $conn,
+    $assigned_user_id,
+    'project_assigned',
+    'New project assigned',
+    $creatorName . ' assigned project "' . $project_name . '" to you.',
+    'projects.php',
+    (int) $created_by
+);
 
 /*
 |--------------------------------------------------------------------------

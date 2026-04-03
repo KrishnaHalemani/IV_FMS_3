@@ -1,6 +1,7 @@
 <?php
 require "../config/db.php";
 require "../config/roles.php";
+require_once __DIR__ . '/../config/notifications.php';
 
 if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     http_response_code(401);
@@ -37,7 +38,7 @@ if (!in_array($status, $allowed, true)) {
 }
 
 $projectStmt = $conn->prepare("
-    SELECT p.created_by, u.role AS creator_role
+    SELECT p.created_by, p.project_name, p.project_status, p.assigned_user_id, u.role AS creator_role
     FROM projects p
     JOIN users u ON p.created_by = u.id
     WHERE p.id = ?
@@ -62,5 +63,24 @@ $stmt = $conn->prepare(
 );
 $stmt->bind_param("si", $status, $project_id);
 $stmt->execute();
+$stmt->close();
+
+if ((string) $project['project_status'] !== $status) {
+    $actorName = (string) ($_SESSION['username'] ?? $_SESSION['email'] ?? 'A team member');
+    $recipients = array_filter([
+        (int) ($project['assigned_user_id'] ?? 0),
+        (int) ($project['created_by'] ?? 0),
+    ]);
+    $recipients = array_values(array_diff(array_unique($recipients), [$currentUserId]));
+    iv_create_notifications_for_users(
+        $conn,
+        $recipients,
+        'project_status',
+        'Project status updated',
+        $actorName . ' changed "' . (string) $project['project_name'] . '" to ' . $status . '.',
+        'projects.php',
+        $currentUserId
+    );
+}
 
 echo "OK";

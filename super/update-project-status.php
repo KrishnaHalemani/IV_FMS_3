@@ -2,6 +2,7 @@
 
 require "../config/db.php";
 require "../config/roles.php";
+require_once __DIR__ . '/../config/notifications.php';
 
 if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     http_response_code(401);
@@ -44,6 +45,17 @@ if (!in_array($status, $allowed, true)) {
 |   - OR you are the creator
 */
 
+$contextStmt = $conn->prepare("SELECT project_name, project_status, assigned_user_id, created_by FROM projects WHERE id = ? LIMIT 1");
+$contextStmt->bind_param("i", $projectId);
+$contextStmt->execute();
+$project = $contextStmt->get_result()->fetch_assoc();
+$contextStmt->close();
+
+if (!$project) {
+    http_response_code(404);
+    exit("Project not found");
+}
+
 $stmt = $conn->prepare("
     UPDATE projects p
     JOIN users u ON p.created_by = u.id
@@ -68,6 +80,24 @@ $stmt->execute();
 if ($stmt->affected_rows === 0) {
     http_response_code(403);
     exit("You are not allowed to update this project");
+}
+
+if ((string) $project['project_status'] !== $status) {
+    $actorName = (string) ($_SESSION['username'] ?? $_SESSION['email'] ?? 'A team member');
+    $recipients = array_filter([
+        (int) ($project['assigned_user_id'] ?? 0),
+        (int) ($project['created_by'] ?? 0),
+    ]);
+    $recipients = array_values(array_diff(array_unique($recipients), [(int) $currentUserId]));
+    iv_create_notifications_for_users(
+        $conn,
+        $recipients,
+        'project_status',
+        'Project status updated',
+        $actorName . ' changed "' . (string) $project['project_name'] . '" to ' . $status . '.',
+        'projects.php',
+        (int) $currentUserId
+    );
 }
 
 echo "OK";

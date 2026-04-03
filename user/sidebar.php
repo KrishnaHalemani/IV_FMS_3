@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/roles.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/notifications.php';
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -11,6 +13,8 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('user')) {
     http_response_code(403);
     exit('Forbidden');
 }
+
+$notificationUnreadCount = iv_count_unread_notifications($conn, (int) $_SESSION['user_id']);
 ?>
 <!--! ================================================================ !-->
     <!--! [Start] Navigation Manu !-->
@@ -28,6 +32,15 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('user')) {
                 <ul class="nxl-navbar">
                     <li class="nxl-item nxl-caption">
                         <label>Navigation</label>
+                    </li>
+                    <li class="nxl-item">
+                        <a href="notifications.php" class="nxl-link">
+                            <span class="nxl-micon"><i class="feather-bell"></i></span>
+                            <span class="nxl-mtext">Notifications</span>
+                            <?php if ($notificationUnreadCount > 0): ?>
+                                <span class="badge bg-danger rounded-pill ms-auto"><?= $notificationUnreadCount ?></span>
+                            <?php endif; ?>
+                        </a>
                     </li>
                     <li class="nxl-item nxl-hasmenu">
                         <a href="javascript:void(0);" class="nxl-link">
