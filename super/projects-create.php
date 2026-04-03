@@ -224,53 +224,26 @@ while ($row = $res->fetch_assoc()) {
                                         <hr class="mb-5">
                                         <fieldset>
                                             <div class="mb-5">
-                                                <h2 class="fs-16 fw-bold">Project manage</h2>
-                                                <p class="text-muted">Who can manage projects</p>
+                                                <h2 class="fs-16 fw-bold">Project assignment</h2>
+                                                <p class="text-muted">Assign this project to a lower-role user in your reporting tree.</p>
                                                 <label class="error" style="display: none"></label>
                                             </div>
                                             <fieldset>
-                                                <label class="w-100" for="project_everyone">
-                                                    <input class="card-input-element" type="radio" name="project_manage" id="project_everyone" value="everyone" required>
-                                                    <span class="card card-body d-flex flex-row justify-content-between align-items-center">
-                                                        <span class="hstack gap-3">
-                                                            <span class="avatar-text">
-                                                                <i class="feather-globe"></i>
-                                                            </span>
-                                                            <span>
-                                                                <span class="d-block fs-13 fw-bold text-dark">Everyone</span>
-                                                                <span class="d-block text-muted mb-0">All users now can to see it, but guests can't access.</span>
-                                                            </span>
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                                <label class="w-100" for="project_admin">
-                                                    <input class="card-input-element" type="radio" name="project_manage" value="admin" id="project_admin">
-                                                    <span class="card card-body d-flex flex-row justify-content-between align-items-center">
-                                                        <span class="hstack gap-3">
-                                                            <span class="avatar-text">
-                                                                <i class="feather-shield"></i>
-                                                            </span>
-                                                            <span>
-                                                                <span class="d-block fs-13 fw-bold text-dark">Only Admin's</span>
-                                                                <span class="d-block text-muted mb-0">Only admin's can manage everythings.</span>
-                                                            </span>
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                                <label class="w-100" for="project_specific">
-                                                    <input class="card-input-element" type="radio" name="project_manage" value="specific" id="project_specific">
-                                                    <span class="card card-body d-flex flex-row justify-content-between align-items-center">
-                                                        <span class="hstack gap-3">
-                                                            <span class="avatar-text">
-                                                                <i class="feather-settings"></i>
-                                                            </span>
-                                                            <span>
-                                                                <span class="d-block fs-13 fw-bold text-dark">Only to Specific People</span>
-                                                                <span class="d-block text-muted mb-0">Only some specific people can able to see it.</span>
-                                                            </span>
-                                                        </span>
-                                                    </span>
-                                                </label>
+                                                <input type="hidden" name="project_manage" value="hierarchy">
+                                                <div class="mb-4">
+                                                    <label for="assignedUserId" class="form-label">Assign to user <span class="text-danger">*</span></label>
+                                                    <select id="assignedUserId" class="form-select" name="assigned_user_id" required>
+                                                        <option value="">Select a user</option>
+                                                        <?php foreach ($assignableUsers as $assignableUser): ?>
+                                                            <option value="<?= (int) $assignableUser['id'] ?>">
+                                                                <?= htmlspecialchars($assignableUser['username']) ?> (<?= htmlspecialchars(ucfirst((string) $assignableUser['role'])) ?>)
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="alert alert-light border mb-0">
+                                                    Superadmins can assign projects to admins and users created by them.
+                                                </div>
                                             </fieldset>
                                         </fieldset>
 

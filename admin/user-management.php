@@ -33,7 +33,6 @@ $registerPath = '../auth-register-cover.php';
 </head>
 <body>
     <?php include 'sidebar.php'; ?>
-    <?php include 'header.php'; ?>
     <main class="nxl-container">
         <div class="nxl-content">
             <?php include __DIR__ . '/../partials/user-management-content.php'; ?>

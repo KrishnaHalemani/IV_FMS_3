@@ -7,8 +7,13 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role ENUM('master','super','admin','user') NOT NULL,
+    created_by INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE users
+ADD CONSTRAINT fk_users_created_by
+FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
 
 INSERT INTO users (email,username, password, role) VALUES
 ('master@gmail.com', 'master', 'master123', 'master'),
@@ -187,4 +192,3 @@ CREATE TABLE IF NOT EXISTS students (
     status ENUM('Active','Inactive') DEFAULT 'Active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-

@@ -3,6 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 require 'config/db.php';
+require_once __DIR__ . '/config/user_management.php';
 
 session_start();
 
@@ -26,7 +27,8 @@ $required = [
     'start_date',
     'end_date',
     'billing_type',
-    'project_status'
+    'project_status',
+    'assigned_user_id'
 ];
 
 foreach ($required as $field) {
@@ -50,15 +52,22 @@ $start_date     = $_POST['start_date'];
 $end_date       = $_POST['end_date'];
 $billing_type   = $_POST['billing_type'];
 $project_status = $_POST['project_status'];
+$assigned_user_id = (int) ($_POST['assigned_user_id'] ?? 0);
 
 $employee_ids = $_POST['employee_ids'] ?? [];
 $employee_ids = array_map('intval', (array)$employee_ids);
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     die("User not logged in");
 }
 
 $created_by = $_SESSION['user_id']; // fallback for testing
+$creator_role = (string) $_SESSION['role'];
+$assignableUsers = fetchAssignableUsersIndexed($conn, (int) $created_by, $creator_role);
+
+if (!isset($assignableUsers[$assigned_user_id])) {
+    die('Invalid project assignee selected.');
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -92,13 +101,14 @@ $sql = "
         project_hours,
         billing_type,
         project_status,
+        assigned_user_id,
         created_by
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param(
-    "sssssssissi",
+    "sssssssissii",
     $project_name,
     $description,
     $customer_name,
@@ -109,6 +119,7 @@ $stmt->bind_param(
     $project_hours,
     $billing_type,
     $project_status,
+    $assigned_user_id,
     $created_by
 );
 

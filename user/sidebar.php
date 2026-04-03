@@ -36,8 +36,6 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('user')) {
                         </a>
                         <ul class="nxl-submenu">
                             <li class="nxl-item"><a class="nxl-link" href="projects.php">Projects</a></li>
-                            
-                            <li class="nxl-item"><a class="nxl-link" href="projects-create.php">Projects Create</a></li>
                         </ul>
                     </li>
                     <li class="nxl-item nxl-hasmenu">
