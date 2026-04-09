@@ -2,7 +2,9 @@
 
 require "config/db.php";
 require "config/roles.php";
+require_once __DIR__ . '/config/access_control.php';
 
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
 
 /* Accept POST only (since form uses POST) */

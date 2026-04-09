@@ -2,6 +2,7 @@
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/user_management.php';
 require_once __DIR__ . '/config/project_access.php';
+require_once __DIR__ . '/config/business_scope.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -93,7 +94,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
         $error = 'Start date cannot be after end date.';
     } else {
         if ($customer_id !== null) {
-            $customerCheck = $conn->prepare("SELECT customer_name FROM customers WHERE id = ? LIMIT 1");
+            $customerSql = "SELECT customer_name FROM customers WHERE id = ?";
+            if (!iv_is_master_business_role($currentSessionRole)) {
+                $customerSql .= " AND franchisee_id = " . (int) iv_current_business_franchisee_id($currentSessionRole);
+            }
+            $customerSql .= " LIMIT 1";
+            $customerCheck = $conn->prepare($customerSql);
             $customerCheck->bind_param("i", $customer_id);
             $customerCheck->execute();
             $customerRow = $customerCheck->get_result()->fetch_assoc();
@@ -107,7 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
         }
 
         if ($error === null && $related_invoice_id !== null) {
-            $invoiceCheck = $conn->prepare("SELECT to_name FROM invoices WHERE id = ? LIMIT 1");
+            $invoiceSql = "SELECT to_name FROM invoices WHERE id = ?";
+            if (!iv_is_master_business_role($currentSessionRole)) {
+                $invoiceSql .= " AND franchisee_id = " . (int) iv_current_business_franchisee_id($currentSessionRole);
+            }
+            $invoiceSql .= " LIMIT 1";
+            $invoiceCheck = $conn->prepare($invoiceSql);
             $invoiceCheck->bind_param("i", $related_invoice_id);
             $invoiceCheck->execute();
             $invoiceRow = $invoiceCheck->get_result()->fetch_assoc();
@@ -263,7 +274,7 @@ if ($employeeResult) {
 }
 
 $customers = [];
-$customerResult = $conn->query("SELECT id, customer_name, company_name FROM customers ORDER BY customer_name");
+$customerResult = $conn->query("SELECT id, customer_name, company_name FROM customers WHERE " . iv_business_scope_condition('franchisee_id', $currentSessionRole) . " ORDER BY customer_name");
 if ($customerResult) {
     while ($row = $customerResult->fetch_assoc()) {
         $customers[] = $row;
@@ -271,7 +282,7 @@ if ($customerResult) {
 }
 
 $invoices = [];
-$invoiceResult = $conn->query("SELECT id, invoice_number, to_name FROM invoices ORDER BY id DESC");
+$invoiceResult = $conn->query("SELECT id, invoice_number, to_name FROM invoices WHERE " . iv_business_scope_condition('franchisee_id', $currentSessionRole) . " ORDER BY id DESC");
 if ($invoiceResult) {
     while ($row = $invoiceResult->fetch_assoc()) {
         $invoices[] = $row;

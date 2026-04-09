@@ -2,6 +2,9 @@
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/user_management.php';
 require_once __DIR__ . '/config/current_user.php';
+require_once __DIR__ . '/config/access_control.php';
+
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
 $error = "";
 $success = "";
@@ -58,6 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Please fill all required fields.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Please enter a valid employee email address.";
+    } elseif ($create_login_account && $franchisee_id === '') {
+        $error = "Assign a franchisee before creating a login account.";
     } else {
         $check = $conn->prepare("SELECT id FROM employees WHERE email = ? LIMIT 1");
         $check->bind_param("s", $email);
@@ -105,7 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $email,
                         $login_username,
                         $login_password,
-                        $login_role
+                        $login_role,
+                        $franchiseeIdValue
                     );
 
                     if (!$account['ok']) {
@@ -175,6 +181,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php if ($error): ?>
 <div class="alert alert-danger alert-dismissible fade show">
     <?= htmlspecialchars($error) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<?php endif; ?>
+<?php if (isset($_GET['binding_required'])): ?>
+<div class="alert alert-info alert-dismissible fade show">
+    Create login accounts through an employee record so every non-master user is linked to a franchise.
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 <?php endif; ?>

@@ -1,9 +1,14 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/access_control.php';
+require_once __DIR__ . '/../config/business_scope.php';
+
+iv_require_role_session(['user'], '../login.php');
 
 // Fetch invoices
 $sql = "SELECT id, invoice_number, to_name, to_email, grand_total, currency, created_at
         FROM invoices
+        WHERE " . iv_business_scope_condition('franchisee_id') . "
         ORDER BY id DESC";
 $result = $conn->query($sql);
 ?>

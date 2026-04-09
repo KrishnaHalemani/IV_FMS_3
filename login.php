@@ -2,6 +2,7 @@
 include "config/db.php";
 require_once __DIR__ . "/config/activity_log.php";
 require_once __DIR__ . "/config/current_user.php";
+require_once __DIR__ . "/config/franchise_binding.php";
 
 if (isset($_POST['login'])) {
     $email = trim($_POST['email'] ?? '');
@@ -27,6 +28,11 @@ if (isset($_POST['login'])) {
         }
     }
 
+    if ($isValid && iv_user_requires_franchise_binding((string) $user['role']) && !iv_user_has_franchise_binding($conn, (int) $user['id'])) {
+        $isValid = false;
+        $error = "This account is not linked to a franchise yet. Please contact the franchise owner.";
+    }
+
     if ($isValid) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['email']   = $user['email'];
@@ -37,7 +43,9 @@ if (isset($_POST['login'])) {
         exit;
     }
 
-    $error = "Invalid email or password";
+    if (!isset($error)) {
+        $error = "Invalid email or password";
+    }
 }
 ?>
 

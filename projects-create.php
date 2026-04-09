@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/user_management.php';
+require_once __DIR__ . '/config/business_scope.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -18,14 +19,15 @@ if (!in_array($projectRole, ['master', 'super', 'admin'], true)) {
 }
 
 $assignableUsers = fetchAssignableUsers($conn, (int) $_SESSION['user_id'], (string) $_SESSION['role']);
+$businessScope = iv_business_scope_condition();
 $employees = [];
-$res = $conn->query("SELECT id, name FROM employees ORDER BY name");
+$res = $conn->query("SELECT id, name FROM employees WHERE " . $businessScope . " ORDER BY name");
 while ($res && $row = $res->fetch_assoc()) {
     $employees[] = $row;
 }
 
 $customers = [];
-$customerResult = $conn->query("SELECT id, customer_name, company_name FROM customers ORDER BY customer_name");
+$customerResult = $conn->query("SELECT id, customer_name, company_name FROM customers WHERE " . $businessScope . " ORDER BY customer_name");
 while ($customerResult && $row = $customerResult->fetch_assoc()) {
     $customers[] = $row;
 }
@@ -37,7 +39,7 @@ while ($franchiseeResult && $row = $franchiseeResult->fetch_assoc()) {
 }
 
 $invoices = [];
-$invoiceResult = $conn->query("SELECT id, invoice_number, to_name, grand_total, currency FROM invoices ORDER BY id DESC LIMIT 100");
+$invoiceResult = $conn->query("SELECT id, invoice_number, to_name, grand_total, currency FROM invoices WHERE " . $businessScope . " ORDER BY id DESC LIMIT 100");
 while ($invoiceResult && $row = $invoiceResult->fetch_assoc()) {
     $invoices[] = $row;
 }

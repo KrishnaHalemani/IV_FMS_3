@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/current_user.php';
+require_once __DIR__ . '/config/access_control.php';
+
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
 /* DELETE EMPLOYEE */
 if (isset($_GET['delete_id'])) {

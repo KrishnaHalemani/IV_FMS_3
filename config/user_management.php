@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/roles.php';
+require_once __DIR__ . '/franchise_binding.php';
 
 if (!function_exists('getCreatableRoles')) {
     function getCreatableRoles(string $role): array
@@ -165,7 +166,8 @@ if (!function_exists('createManagedUserAccount')) {
         string $email,
         string $username,
         string $password,
-        string $requestedRole
+        string $requestedRole,
+        ?int $franchiseeId = null
     ): array {
         $email = trim($email);
         $username = trim($username);
@@ -181,6 +183,10 @@ if (!function_exists('createManagedUserAccount')) {
 
         if (!in_array($requestedRole, getCreatableRoles($actorRole), true)) {
             return ['ok' => false, 'error' => 'You are not allowed to create that system role.'];
+        }
+
+        if (!iv_can_create_bound_role($franchiseeId, $requestedRole)) {
+            return ['ok' => false, 'error' => 'A franchisee must be assigned before creating a non-master login account.'];
         }
 
         if (strlen($password) < 6) {

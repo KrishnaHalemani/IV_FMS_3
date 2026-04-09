@@ -5,6 +5,7 @@ ini_set('display_errors', 1);
 require 'config/db.php';
 require_once __DIR__ . '/config/user_management.php';
 require_once __DIR__ . '/config/notifications.php';
+require_once __DIR__ . '/config/business_scope.php';
 
 session_start();
 
@@ -81,7 +82,12 @@ if (!isset($assignableUsers[$assigned_user_id])) {
 
 $customer_name = 'Internal Project';
 if ($customer_id !== null) {
-    $customerStmt = $conn->prepare("SELECT customer_name FROM customers WHERE id = ? LIMIT 1");
+    $customerSql = "SELECT customer_name FROM customers WHERE id = ?";
+    if (!iv_is_master_business_role($creator_role)) {
+        $customerSql .= " AND franchisee_id = " . (int) iv_current_business_franchisee_id($creator_role);
+    }
+    $customerSql .= " LIMIT 1";
+    $customerStmt = $conn->prepare($customerSql);
     $customerStmt->bind_param("i", $customer_id);
     $customerStmt->execute();
     $customerRow = $customerStmt->get_result()->fetch_assoc();
@@ -107,7 +113,12 @@ if ($franchisee_id !== null) {
 }
 
 if ($related_invoice_id !== null) {
-    $invoiceStmt = $conn->prepare("SELECT to_name FROM invoices WHERE id = ? LIMIT 1");
+    $invoiceSql = "SELECT to_name FROM invoices WHERE id = ?";
+    if (!iv_is_master_business_role($creator_role)) {
+        $invoiceSql .= " AND franchisee_id = " . (int) iv_current_business_franchisee_id($creator_role);
+    }
+    $invoiceSql .= " LIMIT 1";
+    $invoiceStmt = $conn->prepare($invoiceSql);
     $invoiceStmt->bind_param("i", $related_invoice_id);
     $invoiceStmt->execute();
     $invoiceRow = $invoiceStmt->get_result()->fetch_assoc();

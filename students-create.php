@@ -1,3 +1,8 @@
+<?php
+require_once __DIR__ . '/config/access_control.php';
+
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
+?>
 <!DOCTYPE html>
 <html lang="zxx">
 <head>

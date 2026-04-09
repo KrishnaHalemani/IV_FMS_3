@@ -1,12 +1,21 @@
 <?php
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/access_control.php';
+require_once __DIR__ . '/config/business_scope.php';
+
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($id <= 0) {
     die('Invalid student ID');
 }
 
-$stmt = $conn->prepare("SELECT * FROM students WHERE id = ? LIMIT 1");
+$studentSql = "SELECT * FROM students WHERE id = ?";
+if (!iv_is_master_business_role()) {
+    $studentSql .= " AND franchisee_id = " . (int) iv_current_business_franchisee_id();
+}
+$studentSql .= " LIMIT 1";
+$stmt = $conn->prepare($studentSql);
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $student = $stmt->get_result()->fetch_assoc();

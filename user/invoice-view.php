@@ -1,5 +1,9 @@
 ﻿<?php
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/access_control.php';
+require_once __DIR__ . '/../config/business_scope.php';
+
+iv_require_role_session(['user'], '../login.php');
 
 if (!isset($_GET['id'])) {
     die('Invoice ID missing');
@@ -7,7 +11,11 @@ if (!isset($_GET['id'])) {
 
 $id = (int)$_GET['id'];
 
-$stmt = $conn->prepare('SELECT * FROM invoices WHERE id = ?');
+$invoiceSql = 'SELECT * FROM invoices WHERE id = ?';
+if (!iv_is_master_business_role()) {
+    $invoiceSql .= ' AND franchisee_id = ' . (int) iv_current_business_franchisee_id();
+}
+$stmt = $conn->prepare($invoiceSql);
 $stmt->bind_param('i', $id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -99,4 +107,3 @@ $items = $itemsStmt->get_result();
 <script src="assets/vendors/js/vendors.min.js"></script>
 </body>
 </html>
-

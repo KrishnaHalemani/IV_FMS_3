@@ -4,6 +4,10 @@ ini_set('display_errors', 1);
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/access_control.php';
+require_once __DIR__ . '/config/business_scope.php';
+
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $student_name = trim($_POST['student_name'] ?? '');
@@ -19,13 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die('Student name is required');
     }
 
+    $franchiseeId = iv_current_business_franchisee_id();
+    $createdBy = (int) ($_SESSION['user_id'] ?? 0);
+
     $sql = "INSERT INTO students
-    (student_name, email, phone, course, address, about, dob, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    (student_name, email, phone, course, address, about, dob, status, franchisee_id, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(
-        "ssssssss",
+        "ssssssssii",
         $student_name,
         $email,
         $phone,
@@ -33,7 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $address,
         $about,
         $dob,
-        $status
+        $status,
+        $franchiseeId,
+        $createdBy
     );
     $stmt->execute();
 

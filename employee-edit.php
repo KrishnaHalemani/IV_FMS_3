@@ -2,6 +2,9 @@
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/user_management.php';
 require_once __DIR__ . '/config/current_user.php';
+require_once __DIR__ . '/config/access_control.php';
+
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
 $id = (int) ($_GET['id'] ?? 0);
 $sessionRole = (string) ($_SESSION['role'] ?? '');
@@ -67,6 +70,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Please fill all required fields.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Please enter a valid employee email address.";
+    } elseif ($create_login_account && $franchisee_id === null) {
+        $error = "Assign a franchisee before creating a login account.";
+    }
+
+    $linkedSystemRole = (string) ($data['linked_role'] ?? '');
+    if ($error === '' && $franchisee_id === null && iv_user_requires_franchise_binding($linkedSystemRole)) {
+        $error = "Employees with non-master login accounts must stay linked to a franchise.";
     }
 
     if ($error === '' && $franchisee_id !== null) {
@@ -104,7 +114,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $email,
                     $login_username,
                     $login_password,
-                    $login_role
+                    $login_role,
+                    $franchisee_id
                 );
 
                 if (!$account['ok']) {

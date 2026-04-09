@@ -1,16 +1,24 @@
 <?php
 require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/config/access_control.php';
+require_once __DIR__ . '/config/business_scope.php';
+
+iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
 if (isset($_GET['delete_id'])) {
     $id = (int) $_GET['delete_id'];
-    $stmt = $conn->prepare("DELETE FROM students WHERE id = ?");
+    $deleteSql = "DELETE FROM students WHERE id = ?";
+    if (!iv_is_master_business_role()) {
+        $deleteSql .= " AND franchisee_id = " . (int) iv_current_business_franchisee_id();
+    }
+    $stmt = $conn->prepare($deleteSql);
     $stmt->bind_param("i", $id);
     $stmt->execute();
     header("Location: students.php");
     exit;
 }
 
-$result = $conn->query("SELECT * FROM students ORDER BY id DESC");
+$result = $conn->query("SELECT * FROM students WHERE " . iv_business_scope_condition('franchisee_id') . " ORDER BY id DESC");
 ?>
 <!DOCTYPE html>
 <html lang="zxx">

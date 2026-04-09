@@ -4,6 +4,10 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/access_control.php';
+require_once __DIR__ . '/../config/business_scope.php';
+
+iv_require_role_session(['user'], '../login.php');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -56,6 +60,8 @@ $tax_amount = ($sub_total * $tax_percent) / 100;
 $grand_total = $sub_total + $tax_amount;
 $currency = 'INR';
 $discount = 0.00;
+$franchiseeId = iv_current_business_franchisee_id();
+$createdBy = (int) ($_SESSION['user_id'] ?? 0);
 
 $partyLines = preg_split('/\R/', $party_details);
 $party_name = trim((string)($partyLines[0] ?? 'Party'));
@@ -82,8 +88,10 @@ try {
         tax_amount,
         grand_total,
         currency,
-        discount
-    ) VALUES (?, ?, ?, ?, '', '', '', '', ?, '', ?, ?, '', ?, ?, ?, ?, ?, ?)";
+        discount,
+        franchisee_id,
+        created_by
+    ) VALUES (?, ?, ?, ?, '', '', '', '', ?, '', ?, ?, '', ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
 
@@ -92,7 +100,7 @@ try {
     $invoice_product = $lineItems[0]['description'];
 
     $stmt->bind_param(
-        'sssssssddddsd',
+        'sssssssddddsdii',
         $issue_date,
         $invoice_label,
         $invoice_number,
@@ -105,7 +113,9 @@ try {
         $tax_amount,
         $grand_total,
         $currency,
-        $discount
+        $discount,
+        $franchiseeId,
+        $createdBy
     );
 
     $stmt->execute();

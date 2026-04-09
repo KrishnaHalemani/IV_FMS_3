@@ -1,4 +1,8 @@
 ﻿<?php
+require_once __DIR__ . '/../config/access_control.php';
+
+iv_require_role_session(['user'], '../login.php');
+
 $today = date('Y-m-d');
 ?>
 <!DOCTYPE html>
@@ -160,5 +164,3 @@ updateTotals();
 </script>
 </body>
 </html>
-
-
