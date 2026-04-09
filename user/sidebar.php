@@ -30,7 +30,7 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('user')) {
             <div class="navbar-content">
                 <ul class="nxl-navbar">
                     <li class="nxl-item nxl-caption">
-                        <label>Navigation</label>
+                        <label>Workspace</label>
                     </li>
                     <li class="nxl-item nxl-hasmenu">
                         <a href="javascript:void(0);" class="nxl-link">
@@ -39,28 +39,6 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('user')) {
                         </a>
                         <ul class="nxl-submenu">
                             <li class="nxl-item"><a class="nxl-link" href="projects.php">Projects</a></li>
-                        </ul>
-                    </li>
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-dollar-sign"></i></span>
-                            <span class="nxl-mtext">IMS</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="payment.php">Payment(IMS)</a></li>
-                            <!-- <li class="nxl-item"><a class="nxl-link" href="invoice-view.php">Invoice View(IMS)</a></li> -->
-                            <li class="nxl-item"><a class="nxl-link" href="invoice-create.php">Invoice Create(IMS)</a></li>
-                        </ul>
-                    </li>
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-users"></i></span>
-                            <span class="nxl-mtext">Clients</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="customers.php">Clients</a></li>
-                            <!-- <li class="nxl-item"><a class="nxl-link" href="customers-view.php">Cients View</a></li> -->
-                            <li class="nxl-item"><a class="nxl-link" href="customers-create.php">Clients Create</a></li>
                         </ul>
                     </li>
                     <!-- <li class="nxl-item nxl-hasmenu">
@@ -121,15 +99,6 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('user')) {
                             <li class="nxl-item"><a class="nxl-link" href="/docs/documentations">Documentations</a></li>
                         </ul>
                     </li> -->
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-power"></i></span>
-                            <span class="nxl-mtext">Authentication</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="../auth-register-cover.php">Register</a></li>
-                        </ul>
-                    </li>
                 </ul>
                 <!-- <div class="card text-center">
                     <div class="card-body">

@@ -31,6 +31,11 @@ include 'header.php';
 
 <main class="nxl-container">
     <div class="nxl-content">
+        <?php if (isset($_GET['restricted'])): ?>
+            <div class="alert alert-warning" role="alert">
+                Worker accounts can only access assigned projects in this workspace.
+            </div>
+        <?php endif; ?>
         <div class="page-header">
             <div class="page-header-left d-flex align-items-center">
                 <div class="page-header-title">

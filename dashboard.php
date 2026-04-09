@@ -17,7 +17,7 @@ switch ($_SESSION['role']) {
         header("Location: admin/adashboard.php");
         break;
     case 'user':
-        header("Location: user/udashboard.php");
+        header("Location: user/projects.php");
         break;
 }
 exit;
