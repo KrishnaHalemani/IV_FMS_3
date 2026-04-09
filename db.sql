@@ -63,7 +63,11 @@ CREATE TABLE employees (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255),
+    phone VARCHAR(20),
     role VARCHAR(50),
+    status ENUM('Active','Inactive') DEFAULT 'Active',
+    franchisee_id INT NULL,
+    user_id INT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -215,3 +219,46 @@ CREATE TABLE IF NOT EXISTS notifications (
     CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_notifications_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
+
+-- Franchisee management schema
+CREATE TABLE IF NOT EXISTS franchisees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    franchisee_code VARCHAR(50) NOT NULL UNIQUE,
+    franchisee_name VARCHAR(255) NOT NULL,
+    owner_name VARCHAR(255) NULL,
+    email VARCHAR(255) NULL UNIQUE,
+    phone VARCHAR(20) NULL,
+    address TEXT NULL,
+    status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',
+    created_by INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_franchisees_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+ALTER TABLE projects
+ADD COLUMN franchisee_id INT NULL AFTER related_invoice_id;
+
+ALTER TABLE projects
+ADD INDEX idx_projects_franchisee_id (franchisee_id);
+
+ALTER TABLE projects
+ADD CONSTRAINT fk_projects_franchisee
+FOREIGN KEY (franchisee_id) REFERENCES franchisees(id)
+ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE employees
+ADD INDEX idx_employees_franchisee_id (franchisee_id);
+
+ALTER TABLE employees
+ADD CONSTRAINT fk_employees_franchisee
+FOREIGN KEY (franchisee_id) REFERENCES franchisees(id)
+ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE employees
+ADD UNIQUE INDEX uq_employees_user_id (user_id);
+
+ALTER TABLE employees
+ADD CONSTRAINT fk_employees_user
+FOREIGN KEY (user_id) REFERENCES users(id)
+ON DELETE SET NULL ON UPDATE CASCADE;

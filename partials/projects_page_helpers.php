@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/dashboard_helpers.php';
+require_once __DIR__ . '/../config/project_access.php';
 
 if (!function_exists('iv_project_normalized_status_expr')) {
     function iv_project_normalized_status_expr(string $alias = 'p'): string
@@ -46,6 +47,7 @@ if (!function_exists('iv_project_badge_tone')) {
             'completed', 'finished' => 'success',
             'active', 'in_progress', 'inprogress' => 'primary',
             'planned', 'draft' => 'info',
+            'not_started' => 'secondary',
             'on_hold' => 'warning',
             'cancelled', 'declined' => 'secondary',
             default => 'dark',
@@ -58,18 +60,23 @@ if (!function_exists('iv_fetch_project_workspace')) {
     {
         $scopeIds = iv_dashboard_scope_ids($conn, $currentUserId, $role);
         $scopeIn = iv_dashboard_format_in_clause($scopeIds);
+        $franchiseeId = iv_current_session_franchisee_id();
         $statusExpr = iv_project_normalized_status_expr('p');
         $priorityExpr = iv_project_normalized_priority_expr('p');
 
         $baseWhere = $role === 'master'
             ? '1=1'
-            : "(p.created_by IN ($scopeIn) OR p.assigned_user_id IN ($scopeIn))";
+            : iv_project_scope_condition($scopeIds, 'p');
+
+        if ($role !== 'master' && $franchiseeId !== null) {
+            $baseWhere .= " AND p.franchisee_id = " . (int) $franchiseeId;
+        }
 
         $status = strtolower(trim((string) ($filters['status'] ?? 'all')));
         $priority = strtolower(trim((string) ($filters['priority'] ?? 'all')));
         $search = trim((string) ($filters['search'] ?? ''));
 
-        $allowedStatuses = ['all', 'draft', 'planned', 'active', 'on_hold', 'completed', 'cancelled'];
+        $allowedStatuses = ['all', 'not_started', 'in_progress', 'on_hold', 'finished', 'declined'];
         $allowedPriorities = ['all', 'low', 'medium', 'high', 'critical'];
 
         if (!in_array($status, $allowedStatuses, true)) {
@@ -93,6 +100,7 @@ if (!function_exists('iv_fetch_project_workspace')) {
                 p.project_name LIKE '%{$escapedSearch}%'
                 OR p.project_code LIKE '%{$escapedSearch}%'
                 OR COALESCE(c.customer_name, '') LIKE '%{$escapedSearch}%'
+                OR COALESCE(f.franchisee_name, '') LIKE '%{$escapedSearch}%'
                 OR COALESCE(owner.username, '') LIKE '%{$escapedSearch}%'
                 OR COALESCE(creator.username, '') LIKE '%{$escapedSearch}%'
             )";
@@ -103,14 +111,15 @@ if (!function_exists('iv_fetch_project_workspace')) {
         $summarySql = "
             SELECT
                 COUNT(*) AS total_projects,
-                SUM(CASE WHEN {$statusExpr} IN ('active', 'planned') THEN 1 ELSE 0 END) AS active_projects,
-                SUM(CASE WHEN {$statusExpr} = 'completed' THEN 1 ELSE 0 END) AS completed_projects,
-                SUM(CASE WHEN p.end_date IS NOT NULL AND p.end_date < CURDATE() AND {$statusExpr} NOT IN ('completed', 'cancelled') THEN 1 ELSE 0 END) AS delayed_projects,
+                SUM(CASE WHEN {$statusExpr} IN ('not_started', 'in_progress', 'on_hold') THEN 1 ELSE 0 END) AS active_projects,
+                SUM(CASE WHEN {$statusExpr} = 'finished' THEN 1 ELSE 0 END) AS completed_projects,
+                SUM(CASE WHEN p.end_date IS NOT NULL AND p.end_date < CURDATE() AND {$statusExpr} NOT IN ('finished', 'declined') THEN 1 ELSE 0 END) AS delayed_projects,
                 SUM(CASE WHEN p.assigned_user_id IS NULL OR p.assigned_user_id = 0 THEN 1 ELSE 0 END) AS unowned_projects,
                 COALESCE(SUM(p.project_hours), 0) AS planned_hours,
                 COALESCE(SUM(p.estimated_budget), 0) AS portfolio_budget
             FROM projects p
             LEFT JOIN customers c ON c.id = p.customer_id
+            LEFT JOIN franchisees f ON f.id = p.franchisee_id
             LEFT JOIN users owner ON owner.id = p.assigned_user_id
             LEFT JOIN users creator ON creator.id = p.created_by
             WHERE {$whereClause}
@@ -130,17 +139,19 @@ if (!function_exists('iv_fetch_project_workspace')) {
                 p.start_date,
                 p.end_date,
                 COALESCE(c.customer_name, p.customer_name, 'Internal Project') AS client_name,
+                COALESCE(f.franchisee_name, 'Direct / Unassigned') AS franchisee_name,
                 COALESCE(owner.username, 'Unassigned') AS owner_name,
                 COALESCE(owner.role, 'unassigned') AS owner_role,
                 COALESCE(creator.username, 'System') AS creator_name,
                 COALESCE(i.invoice_number, '-') AS invoice_number,
                 COUNT(DISTINCT pt.id) AS milestone_count,
                 CASE
-                    WHEN p.end_date IS NOT NULL AND p.end_date < CURDATE() AND {$statusExpr} NOT IN ('completed', 'cancelled') THEN 1
+                    WHEN p.end_date IS NOT NULL AND p.end_date < CURDATE() AND {$statusExpr} NOT IN ('finished', 'declined') THEN 1
                     ELSE 0
                 END AS is_delayed
             FROM projects p
             LEFT JOIN customers c ON c.id = p.customer_id
+            LEFT JOIN franchisees f ON f.id = p.franchisee_id
             LEFT JOIN users owner ON owner.id = p.assigned_user_id
             LEFT JOIN users creator ON creator.id = p.created_by
             LEFT JOIN invoices i ON i.id = p.related_invoice_id
@@ -158,6 +169,7 @@ if (!function_exists('iv_fetch_project_workspace')) {
                 p.end_date,
                 c.customer_name,
                 p.customer_name,
+                f.franchisee_name,
                 owner.username,
                 owner.role,
                 creator.username,
@@ -178,6 +190,7 @@ if (!function_exists('iv_fetch_project_workspace')) {
             FROM project_targets pt
             INNER JOIN projects p ON p.id = pt.project_id
             LEFT JOIN customers c ON c.id = p.customer_id
+            LEFT JOIN franchisees f ON f.id = p.franchisee_id
             LEFT JOIN users owner ON owner.id = p.assigned_user_id
             LEFT JOIN users creator ON creator.id = p.created_by
             WHERE {$whereClause}
@@ -196,6 +209,7 @@ if (!function_exists('iv_fetch_project_workspace')) {
             SELECT {$statusExpr} AS status_key, COUNT(*) AS total
             FROM projects p
             LEFT JOIN customers c ON c.id = p.customer_id
+            LEFT JOIN franchisees f ON f.id = p.franchisee_id
             LEFT JOIN users owner ON owner.id = p.assigned_user_id
             LEFT JOIN users creator ON creator.id = p.created_by
             WHERE {$whereClause}
@@ -226,7 +240,7 @@ if (!function_exists('iv_fetch_project_workspace')) {
                 'status' => $status,
                 'priority' => $priority,
                 'search' => $search,
-                'available_statuses' => ['all', 'draft', 'planned', 'active', 'on_hold', 'completed', 'cancelled'],
+                'available_statuses' => ['all', 'not_started', 'in_progress', 'on_hold', 'finished', 'declined'],
                 'available_priorities' => ['all', 'low', 'medium', 'high', 'critical'],
             ],
         ];

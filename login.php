@@ -1,6 +1,7 @@
 <?php
 include "config/db.php";
 require_once __DIR__ . "/config/activity_log.php";
+require_once __DIR__ . "/config/current_user.php";
 
 if (isset($_POST['login'])) {
     $email = trim($_POST['email'] ?? '');
@@ -30,6 +31,7 @@ if (isset($_POST['login'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['email']   = $user['email'];
         $_SESSION['role']    = $user['role'];
+        iv_refresh_session_user_context($conn, (int) $user['id']);
         iv_log_activity($conn, 'login', ucfirst((string) $user['role']) . ' logged in');
         header("Location: dashboard.php");
         exit;

@@ -12,11 +12,6 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     exit;
 }
 
-if (getRoleLevel((string) $_SESSION['role']) < getRoleLevel('master')) {
-    http_response_code(403);
-    exit('Forbidden');
-}
-
 $currentUserId = (int) $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

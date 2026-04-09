@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     exit;
 }
 
-if ($_SESSION['role'] !== 'master') {
+if (getCreatableRoles((string) $_SESSION['role']) === []) {
     http_response_code(403);
     exit('Forbidden');
 }

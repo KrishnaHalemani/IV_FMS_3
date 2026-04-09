@@ -11,9 +11,10 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     exit;
 }
 
-if ($_SESSION['role'] !== 'master') {
-    http_response_code(403);
-    exit('Forbidden');
+$projectRole = (string) $_SESSION['role'];
+if (!in_array($projectRole, ['master', 'super', 'admin'], true)) {
+    header('Location: projects.php');
+    exit;
 }
 
 $assignableUsers = fetchAssignableUsers($conn, (int) $_SESSION['user_id'], (string) $_SESSION['role']);
@@ -29,6 +30,12 @@ while ($customerResult && $row = $customerResult->fetch_assoc()) {
     $customers[] = $row;
 }
 
+$franchisees = [];
+$franchiseeResult = $conn->query("SELECT id, franchisee_name, franchisee_code FROM franchisees WHERE status = 'Active' ORDER BY franchisee_name");
+while ($franchiseeResult && $row = $franchiseeResult->fetch_assoc()) {
+    $franchisees[] = $row;
+}
+
 $invoices = [];
 $invoiceResult = $conn->query("SELECT id, invoice_number, to_name, grand_total, currency FROM invoices ORDER BY id DESC LIMIT 100");
 while ($invoiceResult && $row = $invoiceResult->fetch_assoc()) {
@@ -36,7 +43,6 @@ while ($invoiceResult && $row = $invoiceResult->fetch_assoc()) {
 }
 
 $projectCode = 'PRJ-' . date('Ymd-His');
-$projectRole = 'master';
 $projectCreateHeading = 'Create Operational Project';
 $projectCreateSubheading = 'Capture only the fields that matter to planning, ownership, client linkage, and execution.';
 $projectCreateAction = 'projects-store.php';

@@ -2,6 +2,8 @@
 require_once __DIR__ . '/config/roles.php';
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/notifications.php';
+require_once __DIR__ . '/config/user_management.php';
+require_once __DIR__ . '/config/current_user.php';
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -9,10 +11,15 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     header('Location: login.php');
     exit;
 }
-if (getRoleLevel($_SESSION['role']) < getRoleLevel('master')) {
-    http_response_code(403);
-    exit('Forbidden');
-}
+
+iv_refresh_session_user_context($conn);
+
+$currentRole = (string) $_SESSION['role'];
+$roleLevel = getRoleLevel($currentRole);
+$isMaster = $currentRole === 'master';
+$canCreateProjects = in_array($currentRole, ['master', 'super', 'admin'], true);
+$canSeeOpsMenus = in_array($currentRole, ['master', 'super', 'admin'], true);
+$canManageUsers = getCreatableRoles($currentRole) !== [];
 
 ?>
 <!--! ================================================================ !-->
@@ -80,51 +87,52 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('master')) {
                             <li class="nxl-item"><a class="nxl-link" href="proposal-create.php">Proposal Create</a></li>
                         </ul>
                     </li> -->
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-dollar-sign"></i></span>
-                            <span class="nxl-mtext">IMS</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="payment.php">Payment(IMS)</a></li>
-                            <!-- <li class="nxl-item"><a class="nxl-link" href="invoice-view.php">Invoice View(IMS)</a></li> -->
-                            <li class="nxl-item"><a class="nxl-link" href="invoice-create.php">Invoice Create(IMS)</a></li>
-                        </ul>
-                    </li>
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-users"></i></span>
-                            <span class="nxl-mtext">Clients</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="customers.php">Clients</a></li>
-                            <!-- <li class="nxl-item"><a class="nxl-link" href="customers-view.php">Cients View</a></li> -->
-                            <li class="nxl-item"><a class="nxl-link" href="customers-create.php">Clients Create</a></li>
-                            <li class="nxl-item"><a class="nxl-link" href="students.php">Students</a></li>
-                            <li class="nxl-item"><a class="nxl-link" href="students-create.php">Students Create</a></li>
-                        </ul>
-                    </li>
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-users"></i></span>
-                            <span class="nxl-mtext">Employees</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="employee.php">Employees</a></li>
-                            <!-- <li class="nxl-item"><a class="nxl-link" href="customers-view.php">Cients View</a></li> -->
-                            <li class="nxl-item"><a class="nxl-link" href="employee-create.php">Employees Create</a></li>
-                        </ul>
-                    </li>
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-user-check"></i></span>
-                            <span class="nxl-mtext">User Access</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="user-management.php">User Management</a></li>
-                            <li class="nxl-item"><a class="nxl-link" href="auth-register-cover.php">Create User</a></li>
-                        </ul>
-                    </li>
+                    <?php if ($canSeeOpsMenus): ?>
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-dollar-sign"></i></span>
+                                <span class="nxl-mtext">IMS</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item"><a class="nxl-link" href="payment.php">Payment(IMS)</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="invoice-create.php">Invoice Create(IMS)</a></li>
+                            </ul>
+                        </li>
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-users"></i></span>
+                                <span class="nxl-mtext">Clients</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item"><a class="nxl-link" href="customers.php">Clients</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="customers-create.php">Clients Create</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="students.php">Students</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="students-create.php">Students Create</a></li>
+                            </ul>
+                        </li>
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-users"></i></span>
+                                <span class="nxl-mtext">Employees</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item"><a class="nxl-link" href="employee.php">Employees</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="employee-create.php">Employees Create</a></li>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
+                    <?php if ($canManageUsers): ?>
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-user-check"></i></span>
+                                <span class="nxl-mtext">User Access</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item"><a class="nxl-link" href="user-management.php">User Management</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="auth-register-cover.php">Create User</a></li>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
                     <!-- <li class="nxl-item nxl-hasmenu">
                         <a href="javascript:void(0);" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-alert-circle"></i></span>
@@ -143,10 +151,23 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('master')) {
                         </a>
                         <ul class="nxl-submenu">
                             <li class="nxl-item"><a class="nxl-link" href="projects.php">Projects</a></li>
-                            <!-- <li class="nxl-item"><a class="nxl-link" href="projects-view.php">Projects View</a></li> -->
-                            <li class="nxl-item"><a class="nxl-link" href="projects-create.php">Projects Create</a></li>
+                            <?php if ($canCreateProjects): ?>
+                                <li class="nxl-item"><a class="nxl-link" href="projects-create.php">Projects Create</a></li>
+                            <?php endif; ?>
                         </ul>
                     </li>
+                    <?php if ($isMaster): ?>
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-home"></i></span>
+                                <span class="nxl-mtext">Franchisees</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item"><a class="nxl-link" href="franchisees.php">Franchisees</a></li>
+                                <li class="nxl-item"><a class="nxl-link" href="franchisee-create.php">Create Franchisee</a></li>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
                     <!-- <li class="nxl-item nxl-hasmenu">
                         <a href="javascript:void(0);" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-layout"></i></span>
@@ -181,15 +202,17 @@ if (getRoleLevel($_SESSION['role']) < getRoleLevel('master')) {
                             <li class="nxl-item"><a class="nxl-link" href="settings-miscellaneous.php">Miscellaneous</a></li>
                         </ul>
                     </li> -->
-                    <li class="nxl-item nxl-hasmenu">
-                        <a href="javascript:void(0);" class="nxl-link">
-                            <span class="nxl-micon"><i class="feather-power"></i></span>
-                            <span class="nxl-mtext">Authentication</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
-                        </a>
-                        <ul class="nxl-submenu">
-                            <li class="nxl-item"><a class="nxl-link" href="./auth-register-cover.php">Register</a></li>
-                        </ul>
-                    </li>
+                    <?php if ($isMaster): ?>
+                        <li class="nxl-item nxl-hasmenu">
+                            <a href="javascript:void(0);" class="nxl-link">
+                                <span class="nxl-micon"><i class="feather-power"></i></span>
+                                <span class="nxl-mtext">Authentication</span><span class="nxl-arrow"><i class="feather-chevron-right"></i></span>
+                            </a>
+                            <ul class="nxl-submenu">
+                                <li class="nxl-item"><a class="nxl-link" href="./auth-register-cover.php">Register</a></li>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
                     <!-- <li class="nxl-item nxl-hasmenu">
                         <a href="javascript:void(0);" class="nxl-link">
                             <span class="nxl-micon"><i class="feather-life-buoy"></i></span>

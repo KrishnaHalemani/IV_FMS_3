@@ -156,4 +156,60 @@ if (!function_exists('fetchAssignableUsersIndexed')) {
         return $indexed;
     }
 }
+
+if (!function_exists('createManagedUserAccount')) {
+    function createManagedUserAccount(
+        mysqli $conn,
+        int $actorUserId,
+        string $actorRole,
+        string $email,
+        string $username,
+        string $password,
+        string $requestedRole
+    ): array {
+        $email = trim($email);
+        $username = trim($username);
+        $requestedRole = trim($requestedRole);
+
+        if ($email === '' || $username === '' || $password === '') {
+            return ['ok' => false, 'error' => 'Login account fields are required.'];
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['ok' => false, 'error' => 'Please enter a valid login email address.'];
+        }
+
+        if (!in_array($requestedRole, getCreatableRoles($actorRole), true)) {
+            return ['ok' => false, 'error' => 'You are not allowed to create that system role.'];
+        }
+
+        if (strlen($password) < 6) {
+            return ['ok' => false, 'error' => 'Login password must be at least 6 characters long.'];
+        }
+
+        $checkStmt = $conn->prepare("SELECT id FROM users WHERE email = ? OR username = ? LIMIT 1");
+        $checkStmt->bind_param("ss", $email, $username);
+        $checkStmt->execute();
+        $existingUser = $checkStmt->get_result()->fetch_assoc();
+        $checkStmt->close();
+
+        if ($existingUser) {
+            return ['ok' => false, 'error' => 'Login email or username already exists.'];
+        }
+
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $insertStmt = $conn->prepare("INSERT INTO users (email, username, password, role, created_by) VALUES (?, ?, ?, ?, ?)");
+        $insertStmt->bind_param("ssssi", $email, $username, $hashedPassword, $requestedRole, $actorUserId);
+        $ok = $insertStmt->execute();
+        $userId = (int) $insertStmt->insert_id;
+        $insertError = $insertStmt->error;
+        $insertStmt->close();
+
+        if (!$ok) {
+            return ['ok' => false, 'error' => $insertError !== '' ? $insertError : 'Unable to create login account.'];
+        }
+
+        return ['ok' => true, 'user_id' => $userId];
+    }
+}
 ?>

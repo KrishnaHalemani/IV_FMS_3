@@ -1,12 +1,27 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/roles.php';
+require_once __DIR__ . '/../config/project_access.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+if (!isset($_SESSION['user_id'], $_SESSION['role']) || $_SESSION['role'] !== 'user') {
+    header('Location: ../login.php');
+    exit;
+}
 
 if (!isset($_GET['id'])) {
     die('Project ID missing');
 }
 
 $project_id = (int) $_GET['id'];
+
+if (!iv_user_can_access_project($conn, $project_id, (int) $_SESSION['user_id'], (string) $_SESSION['role'])) {
+    http_response_code(403);
+    exit('Forbidden');
+}
 
 $projectStmt = $conn->prepare("
     SELECT p.*, e.name AS assigned_employee_name, u.role AS creator_role
@@ -24,11 +39,6 @@ if ($projectResult->num_rows === 0) {
 }
 
 $project = $projectResult->fetch_assoc();
-
-if (!isset($_SESSION['user_id'], $_SESSION['role']) || !canAccessProjectByCreatorRole((int) $_SESSION['user_id'], (string) $_SESSION['role'], (int) $project['created_by'], (string) $project['creator_role'])) {
-    http_response_code(403);
-    exit('Forbidden');
-}
 
 $statusClassMap = [
     'Not Started' => 'secondary',

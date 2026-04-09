@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../config/user_management.php';
 require_once __DIR__ . '/../config/activity_log.php';
+require_once __DIR__ . '/../config/current_user.php';
+require_once __DIR__ . '/../config/project_access.php';
 
 if (!function_exists('iv_dashboard_format_in_clause')) {
     function iv_dashboard_format_in_clause(array $ids): string
@@ -98,10 +100,15 @@ if (!function_exists('iv_fetch_dashboard_metrics')) {
         $scopeIn = iv_dashboard_format_in_clause($scopeIds);
         $subordinateIds = array_values(array_diff($scopeIds, [$currentUserId]));
         $subordinateIn = iv_dashboard_format_in_clause($subordinateIds);
+        $franchiseeId = iv_current_session_franchisee_id();
 
         $projectScope = $role === 'master'
             ? '1=1'
-            : "(p.created_by IN ($scopeIn) OR p.assigned_user_id IN ($scopeIn))";
+            : iv_project_scope_condition($scopeIds, 'p');
+
+        if ($role !== 'master' && $franchiseeId !== null) {
+            $projectScope .= " AND p.franchisee_id = " . (int) $franchiseeId;
+        }
 
         $activityScope = $role === 'master'
             ? '1=1'
@@ -277,6 +284,84 @@ if (!function_exists('iv_fetch_dashboard_metrics')) {
             ];
         }
 
+        $franchiseRow = [
+            'total_franchisees' => 0,
+            'active_franchisees' => 0,
+            'franchise_project_count' => 0,
+            'franchise_employee_count' => 0,
+            'franchise_portfolio_value' => 0,
+            'franchise_revenue_value' => 0,
+        ];
+        $franchiseTable = [];
+
+        if ($role === 'master') {
+            $franchiseSql = "
+                SELECT
+                    (SELECT COUNT(*) FROM franchisees) AS total_franchisees,
+                    (SELECT COUNT(*) FROM franchisees WHERE status = 'Active') AS active_franchisees,
+                    (SELECT COUNT(*) FROM projects WHERE franchisee_id IS NOT NULL) AS franchise_project_count,
+                    (SELECT COUNT(*) FROM employees WHERE franchisee_id IS NOT NULL) AS franchise_employee_count,
+                    (SELECT COALESCE(SUM(estimated_budget), 0) FROM projects WHERE franchisee_id IS NOT NULL) AS franchise_portfolio_value,
+                    (
+                        SELECT COALESCE(SUM(i.grand_total), 0)
+                        FROM invoices i
+                        WHERE i.id IN (
+                            SELECT DISTINCT p.related_invoice_id
+                            FROM projects p
+                            WHERE p.franchisee_id IS NOT NULL
+                              AND p.related_invoice_id IS NOT NULL
+                        )
+                    ) AS franchise_revenue_value
+            ";
+            $franchiseRow = $conn->query($franchiseSql)->fetch_assoc() ?: $franchiseRow;
+
+            $franchiseTableResult = $conn->query("
+                SELECT
+                    f.id,
+                    f.franchisee_name,
+                    f.franchisee_code,
+                    f.status,
+                    (
+                        SELECT COUNT(*)
+                        FROM projects p
+                        WHERE p.franchisee_id = f.id
+                    ) AS total_projects,
+                    (
+                        SELECT COUNT(*)
+                        FROM projects p
+                        WHERE p.franchisee_id = f.id
+                          AND p.project_status IN ('In Progress', 'Not Started', 'On Hold', 'active', 'Active', 'planned')
+                    ) AS active_projects,
+                    (
+                        SELECT COUNT(*)
+                        FROM employees e
+                        WHERE e.franchisee_id = f.id
+                    ) AS total_employees,
+                    (
+                        SELECT COALESCE(SUM(p.estimated_budget), 0)
+                        FROM projects p
+                        WHERE p.franchisee_id = f.id
+                    ) AS portfolio_value,
+                    (
+                        SELECT COALESCE(SUM(i.grand_total), 0)
+                        FROM invoices i
+                        WHERE i.id IN (
+                            SELECT DISTINCT p.related_invoice_id
+                            FROM projects p
+                            WHERE p.franchisee_id = f.id
+                              AND p.related_invoice_id IS NOT NULL
+                        )
+                    ) AS revenue_value
+                FROM franchisees f
+                ORDER BY portfolio_value DESC, total_projects DESC, f.franchisee_name ASC
+                LIMIT 6
+            ");
+
+            while ($franchiseTableResult && $row = $franchiseTableResult->fetch_assoc()) {
+                $franchiseTable[] = $row;
+            }
+        }
+
         return [
             'role_label' => iv_dashboard_role_label($role),
             'scope_ids' => $scopeIds,
@@ -307,6 +392,15 @@ if (!function_exists('iv_fetch_dashboard_metrics')) {
             'upcoming_milestones' => $upcomingMilestones,
             'recent_activity' => $recentActivity,
             'alerts' => $alerts,
+            'franchisees' => [
+                'total' => (int) ($franchiseRow['total_franchisees'] ?? 0),
+                'active' => (int) ($franchiseRow['active_franchisees'] ?? 0),
+                'projects' => (int) ($franchiseRow['franchise_project_count'] ?? 0),
+                'employees' => (int) ($franchiseRow['franchise_employee_count'] ?? 0),
+                'portfolio_value' => (float) ($franchiseRow['franchise_portfolio_value'] ?? 0),
+                'revenue_value' => (float) ($franchiseRow['franchise_revenue_value'] ?? 0),
+                'table' => $franchiseTable,
+            ],
         ];
     }
 }

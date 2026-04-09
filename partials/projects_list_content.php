@@ -103,7 +103,9 @@ $projectFilters = $projectsData['filters'] ?? [];
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <a href="<?= htmlspecialchars($projectsReportUrl) ?>" class="btn btn-light">Open Reports</a>
-                <a href="<?= htmlspecialchars($projectsCreateUrl) ?>" class="btn btn-primary">Create Project</a>
+                <?php if ($projectsCreateUrl !== ''): ?>
+                    <a href="<?= htmlspecialchars($projectsCreateUrl) ?>" class="btn btn-primary">Create Project</a>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -143,7 +145,7 @@ $projectFilters = $projectsData['filters'] ?? [];
             <form method="get" class="iv-projects-filter-grid mb-4">
                 <div>
                     <label class="form-label" for="project-search">Search</label>
-                    <input id="project-search" class="form-control" type="search" name="search" value="<?= htmlspecialchars((string) ($projectFilters['search'] ?? '')) ?>" placeholder="Project, code, client, owner">
+                    <input id="project-search" class="form-control" type="search" name="search" value="<?= htmlspecialchars((string) ($projectFilters['search'] ?? '')) ?>" placeholder="Project, code, client, franchisee, owner">
                 </div>
                 <div>
                     <label class="form-label" for="project-status-filter">Status</label>
@@ -178,6 +180,7 @@ $projectFilters = $projectsData['filters'] ?? [];
                             <th>Project</th>
                             <th>Client</th>
                             <th>Owner</th>
+                            <th>Franchisee</th>
                             <th>Timeline</th>
                             <th>Delivery</th>
                             <th>Budget</th>
@@ -186,7 +189,7 @@ $projectFilters = $projectsData['filters'] ?? [];
                     </thead>
                     <tbody>
                         <?php if ($projectRows === []): ?>
-                            <tr><td colspan="7" class="iv-projects-empty">No projects match the current filters.</td></tr>
+                            <tr><td colspan="8" class="iv-projects-empty">No projects match the current filters.</td></tr>
                         <?php endif; ?>
 
                         <?php foreach ($projectRows as $projectRow): ?>
@@ -215,6 +218,10 @@ $projectFilters = $projectsData['filters'] ?? [];
                                     <div class="text-muted small">Created by <?= htmlspecialchars((string) $projectRow['creator_name']) ?></div>
                                 </td>
                                 <td>
+                                    <div class="fw-semibold text-dark"><?= htmlspecialchars((string) $projectRow['franchisee_name']) ?></div>
+                                    <div class="text-muted small">Project linkage</div>
+                                </td>
+                                <td>
                                     <div class="fw-semibold text-dark"><?= htmlspecialchars((string) ($projectRow['start_date'] ?: '-')) ?></div>
                                     <div class="text-muted small">Due <?= htmlspecialchars((string) ($projectRow['end_date'] ?: '-')) ?></div>
                                 </td>
@@ -229,10 +236,12 @@ $projectFilters = $projectsData['filters'] ?? [];
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end gap-2">
                                         <a href="<?= htmlspecialchars($projectsViewUrlPrefix . (int) $projectRow['id']) ?>" class="btn btn-sm btn-light">Open</a>
-                                        <form method="post" action="<?= htmlspecialchars($projectsDeleteUrl) ?>" onsubmit="return confirm('Delete this project?');">
-                                            <input type="hidden" name="id" value="<?= (int) $projectRow['id'] ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                        </form>
+                                        <?php if ($projectsDeleteUrl !== ''): ?>
+                                            <form method="post" action="<?= htmlspecialchars($projectsDeleteUrl) ?>" onsubmit="return confirm('Delete this project?');">
+                                                <input type="hidden" name="id" value="<?= (int) $projectRow['id'] ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

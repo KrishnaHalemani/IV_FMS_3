@@ -12,16 +12,11 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     exit;
 }
 
-if (getRoleLevel((string) $_SESSION['role']) < getRoleLevel('master')) {
-    http_response_code(403);
-    exit('Forbidden');
-}
-
-$projectsRole = 'master';
+$projectsRole = (string) $_SESSION['role'];
 $projectsData = iv_fetch_project_workspace($conn, (int) $_SESSION['user_id'], $projectsRole, $_GET);
 $projectsPageHeading = 'Project Portfolio';
 $projectsPageSubheading = 'Track ownership, delivery pressure, and linked business records from one workspace.';
-$projectsCreateUrl = 'projects-create.php';
+$projectsCreateUrl = in_array($projectsRole, ['master', 'super', 'admin'], true) ? 'projects-create.php' : '';
 $projectsReportUrl = 'reports-project.php';
 $projectsIndexUrl = 'projects.php';
 $projectsViewUrlPrefix = 'projects-view.php?id=';

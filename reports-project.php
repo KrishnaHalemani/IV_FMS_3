@@ -12,15 +12,10 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     exit;
 }
 
-if (getRoleLevel((string) $_SESSION['role']) < getRoleLevel('master')) {
-    http_response_code(403);
-    exit('Forbidden');
-}
-
-$reportRole = 'master';
+$reportRole = (string) $_SESSION['role'];
 $reportBasePath = 'reports-project.php';
 $reportProjectsPath = 'projects.php';
-$reportCreatePath = 'projects-create.php';
+$reportCreatePath = in_array($reportRole, ['master', 'super', 'admin'], true) ? 'projects-create.php' : '';
 $reportData = iv_fetch_project_report_data($conn, (int) $_SESSION['user_id'], $reportRole, $_GET);
 
 include 'header.php';

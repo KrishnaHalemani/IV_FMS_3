@@ -1,11 +1,20 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/user_management.php';
+require_once __DIR__ . '/../config/project_access.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 if (!isset($_GET['id'])) {
     die('Project ID missing');
 }
 
 $project_id = (int) $_GET['id'];
+$currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+$currentRole = (string) ($_SESSION['role'] ?? '');
+$canChangeProjectOwner = false;
 $flash = null;
 $error = null;
 $billingTypeOptions = [
@@ -13,6 +22,41 @@ $billingTypeOptions = [
     'task_hours' => 'Tasks Hours',
     'project_hours' => 'Project Hours'
 ];
+
+if (!isset($_SESSION['user_id'], $_SESSION['role']) || $_SESSION['role'] !== 'super') {
+    header('Location: ../login.php');
+    exit;
+}
+
+if (!iv_user_can_access_project($conn, $project_id, $currentUserId, $currentRole)) {
+    http_response_code(403);
+    exit('Forbidden');
+}
+
+$assignableUsers = fetchAssignableUsersIndexed($conn, $currentUserId, $currentRole);
+$eligibleUserIds = array_keys($assignableUsers);
+if ($currentUserId > 0 && !in_array($currentUserId, $eligibleUserIds, true)) {
+    $eligibleUserIds[] = $currentUserId;
+}
+$eligibleUserIds = array_values(array_unique(array_map('intval', $eligibleUserIds)));
+
+$eligibleEmployees = [];
+if ($eligibleUserIds !== []) {
+    $eligibleEmployeeResult = $conn->query("
+        SELECT id, name, email, user_id
+        FROM employees
+        WHERE user_id IN (" . implode(',', $eligibleUserIds) . ")
+        ORDER BY name ASC
+    ");
+    while ($eligibleEmployeeResult && $row = $eligibleEmployeeResult->fetch_assoc()) {
+        $eligibleEmployees[] = $row;
+    }
+}
+
+$eligibleEmployeesById = [];
+foreach ($eligibleEmployees as $eligibleEmployee) {
+    $eligibleEmployeesById[(int) $eligibleEmployee['id']] = $eligibleEmployee;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
     $project_name = trim($_POST['project_name'] ?? '');
@@ -25,7 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
     $end_date = $_POST['end_date'] ?? null;
     $description = trim($_POST['description'] ?? '');
     $progress = (int) ($_POST['progress'] ?? 0);
-    $assigned_user_id = ($_POST['assigned_user_id'] ?? '') !== '' ? (int) $_POST['assigned_user_id'] : null;
+    $assigned_user_id = isset($project['assigned_user_id']) ? (int) $project['assigned_user_id'] : null;
+    $team_member_ids = array_values(array_unique(array_map('intval', (array) ($_POST['employee_ids'] ?? []))));
 
     $allowedType = ['personal', 'team'];
     $allowedStatus = ['Not Started', 'In Progress', 'On Hold', 'Finished', 'Declined'];
@@ -43,34 +88,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
     } elseif ($start_date && $end_date && $start_date > $end_date) {
         $error = 'Start date cannot be after end date.';
     } else {
-        $sql = "UPDATE projects
-                SET project_name = ?, customer_name = ?, project_type = ?, billing_type = ?,
-                    project_status = ?, project_hours = ?, start_date = ?, end_date = ?,
-                    description = ?, progress = ?, assigned_user_id = ?
-                WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param(
-            "sssssisssiii",
-            $project_name,
-            $customer_name,
-            $project_type,
-            $billing_type,
-            $project_status,
-            $project_hours,
-            $start_date,
-            $end_date,
-            $description,
-            $progress,
-            $assigned_user_id,
-            $project_id
-        );
-        $stmt->execute();
+        foreach ($team_member_ids as $teamMemberId) {
+            if (!isset($eligibleEmployeesById[$teamMemberId])) {
+                $error = 'Invalid team member selected.';
+                break;
+            }
+        }
+    }
 
-        if ($stmt->error) {
-            $error = 'Failed to update project.';
-        } else {
+    if ($error === null) {
+        $conn->begin_transaction();
+
+        try {
+            $sql = "UPDATE projects
+                    SET project_name = ?, customer_name = ?, project_type = ?, billing_type = ?,
+                        project_status = ?, project_hours = ?, start_date = ?, end_date = ?,
+                        description = ?, progress = ?, assigned_user_id = ?
+                    WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param(
+                "sssssisssiii",
+                $project_name,
+                $customer_name,
+                $project_type,
+                $billing_type,
+                $project_status,
+                $project_hours,
+                $start_date,
+                $end_date,
+                $description,
+                $progress,
+                $assigned_user_id,
+                $project_id
+            );
+            $stmt->execute();
+
+            if ($stmt->error) {
+                throw new RuntimeException('Failed to update project.');
+            }
+            $stmt->close();
+
+            $deleteTeamStmt = $conn->prepare("DELETE FROM project_employees WHERE project_id = ?");
+            $deleteTeamStmt->bind_param("i", $project_id);
+            if (!$deleteTeamStmt->execute()) {
+                throw new RuntimeException('Failed to reset project team.');
+            }
+            $deleteTeamStmt->close();
+
+            if ($team_member_ids !== []) {
+                $insertTeamStmt = $conn->prepare("INSERT INTO project_employees (project_id, employee_id) VALUES (?, ?)");
+                foreach ($team_member_ids as $teamMemberId) {
+                    $insertTeamStmt->bind_param("ii", $project_id, $teamMemberId);
+                    if (!$insertTeamStmt->execute()) {
+                        throw new RuntimeException('Failed to save project team.');
+                    }
+                }
+                $insertTeamStmt->close();
+            }
+
+            $conn->commit();
             header("Location: projects-view.php?id={$project_id}&updated=1");
             exit;
+        } catch (Throwable $e) {
+            $conn->rollback();
+            $error = $e->getMessage();
         }
     }
 }
@@ -102,8 +183,48 @@ if (!array_key_exists($currentBillingType, $billingTypeOptions)) {
     $currentBillingType = 'project_hours';
 }
 
+$selectedTeamMemberIds = [];
+$selectedTeamMembers = [];
+$teamMemberStmt = $conn->prepare("
+    SELECT pe.employee_id, e.name, e.email
+    FROM project_employees pe
+    INNER JOIN employees e ON e.id = pe.employee_id
+    WHERE pe.project_id = ?
+    ORDER BY e.name ASC
+");
+$teamMemberStmt->bind_param("i", $project_id);
+$teamMemberStmt->execute();
+$teamMemberResult = $teamMemberStmt->get_result();
+while ($teamMemberResult && $row = $teamMemberResult->fetch_assoc()) {
+    $selectedTeamMemberIds[] = (int) $row['employee_id'];
+    $selectedTeamMembers[] = $row;
+}
+$teamMemberStmt->close();
+
+$workingTeam = [];
+$workingTeamStmt = $conn->prepare("
+    SELECT e.id, e.name, e.email, e.role, u.username AS linked_username
+    FROM project_employees pe
+    INNER JOIN employees e ON e.id = pe.employee_id
+    LEFT JOIN users u ON u.id = e.user_id
+    WHERE pe.project_id = ?
+    ORDER BY e.name ASC
+");
+$workingTeamStmt->bind_param("i", $project_id);
+$workingTeamStmt->execute();
+$workingTeamResult = $workingTeamStmt->get_result();
+while ($workingTeamResult && $row = $workingTeamResult->fetch_assoc()) {
+    $workingTeam[] = $row;
+}
+$workingTeamStmt->close();
+
 $employees = [];
-$employeeResult = $conn->query("SELECT id, username AS name FROM users ORDER BY username");
+$employeeResult = $conn->query("
+    SELECT id, username AS name
+    FROM users
+    WHERE id IN (" . ($eligibleUserIds !== [] ? implode(',', $eligibleUserIds) : '0') . ")
+    ORDER BY username
+");
 if ($employeeResult) {
     while ($row = $employeeResult->fetch_assoc()) {
         $employees[] = $row;
@@ -128,6 +249,49 @@ $progressValue = isset($project['progress']) ? (int) $project['progress'] : 0;
     <link rel="shortcut icon" href="assets/images/favicon.ico">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/theme.min.css">
+    <style>
+        .iv-team-picker {
+            border: 1px solid #dce6f4;
+            border-radius: 16px;
+            background: #fff;
+            padding: 1rem;
+            display: grid;
+            gap: 0.9rem;
+        }
+        .iv-team-chip-list {
+            min-height: 52px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 0.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            align-items: center;
+        }
+        .iv-team-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            background: #e0ecff;
+            color: #123c69;
+            padding: 0.4rem 0.75rem;
+            font-weight: 600;
+        }
+        .iv-team-chip-remove {
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0;
+            cursor: pointer;
+        }
+        .iv-team-empty {
+            color: #64748b;
+            font-size: 0.92rem;
+        }
+    </style>
 </head>
 <body>
 <?php include 'sidebar.php'; ?>
@@ -208,14 +372,9 @@ $progressValue = isset($project['progress']) ? (int) $project['progress'] : 0;
         <input type="number" name="project_hours" min="0" class="form-control mb-3" value="<?= (int)$project['project_hours'] ?>">
 
         <label class="form-label">Assigned To</label>
-        <select name="assigned_user_id" class="form-select mb-3">
-            <option value="">Unassigned</option>
-            <?php foreach ($employees as $employee): ?>
-                <option value="<?= (int)$employee['id'] ?>" <?= (int)$project['assigned_user_id'] === (int)$employee['id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($employee['name']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+        <input type="hidden" name="assigned_user_id" value="<?= htmlspecialchars((string) ($project['assigned_user_id'] ?? '')) ?>">
+        <input type="text" class="form-control mb-3" value="<?= $project['assigned_employee_name'] ? htmlspecialchars($project['assigned_employee_name']) : 'Unassigned' ?>" readonly>
+        <div class="form-text">Only master can change the project owner. Superadmin can manage the working team below.</div>
 
         <div class="mb-3">
             <strong>Currently Assigned:</strong>
@@ -263,6 +422,71 @@ $progressValue = isset($project['progress']) ? (int) $project['progress'] : 0;
 </div>
 </div>
 
+<div class="card mt-4">
+<div class="card-body">
+    <h6 class="fw-bold mb-2">Working Team</h6>
+    <p class="text-muted mb-3">Add the admins and users who will work on this project under your supervision.</p>
+    <div class="iv-team-picker">
+        <div class="iv-team-chip-list" id="teamMemberChips">
+            <?php if ($selectedTeamMembers === []): ?>
+                <span class="iv-team-empty">No team members selected yet.</span>
+            <?php else: ?>
+                <?php foreach ($selectedTeamMembers as $selectedTeamMember): ?>
+                    <span class="iv-team-chip">
+                        <span><?= htmlspecialchars((string) $selectedTeamMember['name']) ?></span>
+                        <button type="button" class="iv-team-chip-remove" data-employee-id="<?= (int) $selectedTeamMember['employee_id'] ?>" aria-label="Remove <?= htmlspecialchars((string) $selectedTeamMember['name']) ?>">&times;</button>
+                    </span>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        <select class="form-select" id="teamMemberPicker">
+            <option value="">Add team member</option>
+            <?php foreach ($eligibleEmployees as $eligibleEmployee): ?>
+                <option value="<?= (int) $eligibleEmployee['id'] ?>">
+                    <?= htmlspecialchars((string) $eligibleEmployee['name']) ?><?php if (!empty($eligibleEmployee['email'])): ?> - <?= htmlspecialchars((string) $eligibleEmployee['email']) ?><?php endif; ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <select class="form-select d-none" id="teamMembersSelect" name="employee_ids[]" multiple size="<?= max(4, min(8, count($eligibleEmployees))) ?>" aria-hidden="true" tabindex="-1">
+            <?php foreach ($eligibleEmployees as $eligibleEmployee): ?>
+                <option value="<?= (int) $eligibleEmployee['id'] ?>" <?= in_array((int) $eligibleEmployee['id'], $selectedTeamMemberIds, true) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars((string) $eligibleEmployee['name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+</div>
+
+<div class="card mt-4">
+<div class="card-body">
+    <h6 class="fw-bold mb-2">Assigned Members</h6>
+    <p class="text-muted mb-3">Current employees and users working on this project.</p>
+    <?php if ($workingTeam === []): ?>
+        <div class="text-muted">No team members assigned yet.</div>
+    <?php else: ?>
+        <div class="row g-3">
+            <?php foreach ($workingTeam as $teamMember): ?>
+                <div class="col-md-6 col-xl-4">
+                    <div class="border rounded-3 p-3 h-100 bg-light-subtle">
+                        <div class="fw-semibold text-dark"><?= htmlspecialchars((string) $teamMember['name']) ?></div>
+                        <div class="small text-muted"><?= htmlspecialchars((string) ($teamMember['email'] ?: 'No email')) ?></div>
+                        <div class="mt-2 d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark border"><?= htmlspecialchars((string) ($teamMember['role'] ?: 'No job role')) ?></span>
+                            <?php if (!empty($teamMember['linked_username'])): ?>
+                                <span class="badge bg-soft-success text-success"><?= htmlspecialchars((string) $teamMember['linked_username']) ?></span>
+                            <?php else: ?>
+                                <span class="badge bg-light text-muted border">No login</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+</div>
+
 </form>
 
 </div>
@@ -275,6 +499,9 @@ $progressValue = isset($project['progress']) ? (int) $project['progress'] : 0;
 const slider = document.getElementById('progressSlider');
 const progressBar = document.getElementById('progressBar');
 const progressValue = document.getElementById('progressValue');
+const teamMembersSelect = document.getElementById('teamMembersSelect');
+const teamMemberPicker = document.getElementById('teamMemberPicker');
+const teamMemberChips = document.getElementById('teamMemberChips');
 
 if (slider && progressBar && progressValue) {
     slider.addEventListener('input', function () {
@@ -282,6 +509,64 @@ if (slider && progressBar && progressValue) {
         progressBar.style.width = value + '%';
         progressValue.textContent = value + '%';
     });
+}
+
+function renderTeamMemberChips() {
+    if (!teamMembersSelect || !teamMemberChips) {
+        return;
+    }
+
+    const selectedOptions = Array.from(teamMembersSelect.options).filter(function (option) {
+        return option.selected;
+    });
+
+    if (selectedOptions.length === 0) {
+        teamMemberChips.innerHTML = '<span class="iv-team-empty">No team members selected yet.</span>';
+        return;
+    }
+
+    teamMemberChips.innerHTML = selectedOptions.map(function (option) {
+        return '<span class="iv-team-chip">' +
+            '<span>' + option.text.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>' +
+            '<button type="button" class="iv-team-chip-remove" data-employee-id="' + option.value + '" aria-label="Remove ' + option.text.replace(/"/g, '&quot;') + '">&times;</button>' +
+        '</span>';
+    }).join('');
+}
+
+if (teamMembersSelect && teamMemberPicker && teamMemberChips) {
+    teamMemberPicker.addEventListener('change', function () {
+        const selectedValue = this.value;
+        if (!selectedValue) {
+            return;
+        }
+
+        Array.from(teamMembersSelect.options).forEach(function (option) {
+            if (option.value === selectedValue) {
+                option.selected = true;
+            }
+        });
+
+        this.value = '';
+        renderTeamMemberChips();
+    });
+
+    teamMemberChips.addEventListener('click', function (event) {
+        const removeButton = event.target.closest('.iv-team-chip-remove');
+        if (!removeButton) {
+            return;
+        }
+
+        const employeeId = removeButton.getAttribute('data-employee-id');
+        Array.from(teamMembersSelect.options).forEach(function (option) {
+            if (option.value === employeeId) {
+                option.selected = false;
+            }
+        });
+
+        renderTeamMemberChips();
+    });
+
+    renderTeamMemberChips();
 }
 </script>
 </body>

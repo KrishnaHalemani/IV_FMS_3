@@ -1,11 +1,19 @@
 <?php
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/project_access.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 if (!isset($_GET['id'])) {
     die('Project ID missing');
 }
 
 $project_id = (int) $_GET['id'];
+$currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+$currentRole = (string) ($_SESSION['role'] ?? '');
+$canChangeProjectOwner = false;
 $flash = null;
 $error = null;
 $billingTypeOptions = [
@@ -13,6 +21,16 @@ $billingTypeOptions = [
     'task_hours' => 'Tasks Hours',
     'project_hours' => 'Project Hours'
 ];
+
+if (!isset($_SESSION['user_id'], $_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
+
+if (!iv_user_can_access_project($conn, $project_id, $currentUserId, $currentRole)) {
+    http_response_code(403);
+    exit('Forbidden');
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
     $project_name = trim($_POST['project_name'] ?? '');
@@ -25,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_project'])) {
     $end_date = $_POST['end_date'] ?? null;
     $description = trim($_POST['description'] ?? '');
     $progress = (int) ($_POST['progress'] ?? 0);
-    $assigned_user_id = ($_POST['assigned_user_id'] ?? '') !== '' ? (int) $_POST['assigned_user_id'] : null;
+    $assigned_user_id = isset($project['assigned_user_id']) ? (int) $project['assigned_user_id'] : null;
 
     $allowedType = ['personal', 'team'];
     $allowedStatus = ['Not Started', 'In Progress', 'On Hold', 'Finished', 'Declined'];
@@ -109,6 +127,23 @@ if ($employeeResult) {
         $employees[] = $row;
     }
 }
+
+$workingTeam = [];
+$workingTeamStmt = $conn->prepare("
+    SELECT e.id, e.name, e.email, e.role, u.username AS linked_username
+    FROM project_employees pe
+    INNER JOIN employees e ON e.id = pe.employee_id
+    LEFT JOIN users u ON u.id = e.user_id
+    WHERE pe.project_id = ?
+    ORDER BY e.name ASC
+");
+$workingTeamStmt->bind_param("i", $project_id);
+$workingTeamStmt->execute();
+$workingTeamResult = $workingTeamStmt->get_result();
+while ($workingTeamResult && $row = $workingTeamResult->fetch_assoc()) {
+    $workingTeam[] = $row;
+}
+$workingTeamStmt->close();
 
 $statusClassMap = [
     'Not Started' => 'secondary',
@@ -208,14 +243,9 @@ $progressValue = isset($project['progress']) ? (int) $project['progress'] : 0;
         <input type="number" name="project_hours" min="0" class="form-control mb-3" value="<?= (int)$project['project_hours'] ?>">
 
         <label class="form-label">Assigned To</label>
-        <select name="assigned_user_id" class="form-select mb-3">
-            <option value="">Unassigned</option>
-            <?php foreach ($employees as $employee): ?>
-                <option value="<?= (int)$employee['id'] ?>" <?= (int)$project['assigned_user_id'] === (int)$employee['id'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($employee['name']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
+        <input type="hidden" name="assigned_user_id" value="<?= htmlspecialchars((string) ($project['assigned_user_id'] ?? '')) ?>">
+        <input type="text" class="form-control mb-3" value="<?= $project['assigned_employee_name'] ? htmlspecialchars($project['assigned_employee_name']) : 'Unassigned' ?>" readonly>
+        <div class="form-text">Only master can change the project owner.</div>
 
         <div class="mb-3">
             <strong>Currently Assigned:</strong>
@@ -260,6 +290,35 @@ $progressValue = isset($project['progress']) ? (int) $project['progress'] : 0;
 <div class="card-body">
     <h6 class="fw-bold">Project Description</h6>
     <textarea class="form-control" name="description" rows="6"><?= htmlspecialchars((string)$project['description']) ?></textarea>
+</div>
+</div>
+
+<div class="card mt-4">
+<div class="card-body">
+    <h6 class="fw-bold mb-2">Working Team</h6>
+    <p class="text-muted mb-3">Employees and users currently assigned to work on this project.</p>
+    <?php if ($workingTeam === []): ?>
+        <div class="text-muted">No team members assigned yet.</div>
+    <?php else: ?>
+        <div class="row g-3">
+            <?php foreach ($workingTeam as $teamMember): ?>
+                <div class="col-md-6 col-xl-4">
+                    <div class="border rounded-3 p-3 h-100 bg-light-subtle">
+                        <div class="fw-semibold text-dark"><?= htmlspecialchars((string) $teamMember['name']) ?></div>
+                        <div class="small text-muted"><?= htmlspecialchars((string) ($teamMember['email'] ?: 'No email')) ?></div>
+                        <div class="mt-2 d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark border"><?= htmlspecialchars((string) ($teamMember['role'] ?: 'No job role')) ?></span>
+                            <?php if (!empty($teamMember['linked_username'])): ?>
+                                <span class="badge bg-soft-success text-success"><?= htmlspecialchars((string) $teamMember['linked_username']) ?></span>
+                            <?php else: ?>
+                                <span class="badge bg-light text-muted border">No login</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
 </div>
 </div>
 

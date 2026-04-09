@@ -45,6 +45,7 @@ $teamSegments = $dashboardMetrics['team']['segments'] ?? [];
 $activityRows = $dashboardMetrics['recent_activity'] ?? [];
 $milestoneRows = $dashboardMetrics['upcoming_milestones'] ?? [];
 $alertRows = $dashboardMetrics['alerts'] ?? [];
+$franchiseMetrics = $dashboardMetrics['franchisees'] ?? [];
 ?>
 
 <style>
@@ -316,6 +317,130 @@ $alertRows = $dashboardMetrics['alerts'] ?? [];
             </div>
         </div>
     </div>
+
+    <?php if ($dashboardRole === 'master'): ?>
+        <div class="row g-4 mb-4">
+            <div class="col-xxl-3 col-md-6">
+                <div class="card iv-dashboard-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="iv-kpi-icon"><i class="feather-home"></i></div>
+                            <span class="badge bg-soft-primary text-primary">Franchisees</span>
+                        </div>
+                        <div class="fs-3 fw-bold text-dark"><?= number_format((int) ($franchiseMetrics['total'] ?? 0)) ?></div>
+                        <div class="text-muted mb-3">Franchisees registered in the system</div>
+                        <div class="d-flex justify-content-between fs-12">
+                            <span>Active</span>
+                            <span class="fw-semibold"><?= number_format((int) ($franchiseMetrics['active'] ?? 0)) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-3 col-md-6">
+                <div class="card iv-dashboard-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="iv-kpi-icon"><i class="feather-briefcase"></i></div>
+                            <span class="badge bg-soft-success text-success">Assigned Work</span>
+                        </div>
+                        <div class="fs-3 fw-bold text-dark"><?= number_format((int) ($franchiseMetrics['projects'] ?? 0)) ?></div>
+                        <div class="text-muted mb-3">Projects linked to franchisees</div>
+                        <div class="d-flex justify-content-between fs-12">
+                            <span>Employees mapped</span>
+                            <span class="fw-semibold"><?= number_format((int) ($franchiseMetrics['employees'] ?? 0)) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-3 col-md-6">
+                <div class="card iv-dashboard-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="iv-kpi-icon"><i class="feather-layers"></i></div>
+                            <span class="badge bg-soft-info text-info">Portfolio</span>
+                        </div>
+                        <div class="fs-3 fw-bold text-dark">Rs <?= number_format((float) ($franchiseMetrics['portfolio_value'] ?? 0), 0) ?></div>
+                        <div class="text-muted mb-3">Estimated project value by franchisee</div>
+                        <div class="d-flex justify-content-between fs-12">
+                            <span>Linked projects</span>
+                            <span class="fw-semibold"><?= number_format((int) ($franchiseMetrics['projects'] ?? 0)) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-3 col-md-6">
+                <div class="card iv-dashboard-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="iv-kpi-icon"><i class="feather-dollar-sign"></i></div>
+                            <span class="badge bg-soft-warning text-warning">Revenue</span>
+                        </div>
+                        <div class="fs-3 fw-bold text-dark">Rs <?= number_format((float) ($franchiseMetrics['revenue_value'] ?? 0), 0) ?></div>
+                        <div class="text-muted mb-3">Invoice value linked through franchisee projects</div>
+                        <div class="d-flex justify-content-between fs-12">
+                            <span>Active franchisees</span>
+                            <span class="fw-semibold"><?= number_format((int) ($franchiseMetrics['active'] ?? 0)) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="iv-dashboard-panel">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <h5 class="mb-1">Franchisee Performance</h5>
+                            <p class="text-muted fs-12 mb-0">Quick comparison of project load, staffing, and value by franchisee.</p>
+                        </div>
+                        <span class="badge bg-soft-dark text-dark"><?= number_format(count($franchiseMetrics['table'] ?? [])) ?> shown</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Franchisee</th>
+                                    <th>Status</th>
+                                    <th>Projects</th>
+                                    <th>Employees</th>
+                                    <th>Portfolio</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (($franchiseMetrics['table'] ?? []) === []): ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">No franchisee performance data yet.</td>
+                                    </tr>
+                                <?php endif; ?>
+                                <?php foreach (($franchiseMetrics['table'] ?? []) as $franchiseRow): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold text-dark"><?= htmlspecialchars((string) $franchiseRow['franchisee_name']) ?></div>
+                                            <div class="text-muted fs-12"><?= htmlspecialchars((string) $franchiseRow['franchisee_code']) ?></div>
+                                        </td>
+                                        <td>
+                                            <span class="badge <?= ($franchiseRow['status'] ?? '') === 'Active' ? 'bg-soft-success text-success' : 'bg-soft-danger text-danger' ?>">
+                                                <?= htmlspecialchars((string) $franchiseRow['status']) ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="fw-semibold text-dark"><?= number_format((int) $franchiseRow['total_projects']) ?></div>
+                                            <div class="text-muted fs-12"><?= number_format((int) $franchiseRow['active_projects']) ?> active</div>
+                                        </td>
+                                        <td><?= number_format((int) $franchiseRow['total_employees']) ?></td>
+                                        <td>Rs <?= number_format((float) $franchiseRow['portfolio_value'], 0) ?></td>
+                                        <td>Rs <?= number_format((float) $franchiseRow['revenue_value'], 0) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="row g-4 mb-4">
         <div class="col-xxl-6">

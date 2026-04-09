@@ -134,12 +134,11 @@ $roleGuidance = match ($projectRole) {
                 <div class="iv-col-4">
                     <label class="form-label">Status <span class="text-danger">*</span></label>
                     <select class="form-select" name="project_status" required>
-                        <option value="draft" selected>Draft</option>
-                        <option value="planned">Planned</option>
-                        <option value="active">Active</option>
-                        <option value="on_hold">On Hold</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
+                        <option value="Not Started" selected>Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="On Hold">On Hold</option>
+                        <option value="Finished">Finished</option>
+                        <option value="Declined">Declined</option>
                     </select>
                 </div>
                 <div class="iv-col-8">
@@ -181,6 +180,17 @@ $roleGuidance = match ($projectRole) {
                                 <?php if (!empty($customer['company_name'])): ?>
                                     - <?= htmlspecialchars((string) $customer['company_name']) ?>
                                 <?php endif; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="iv-col-4">
+                    <label class="form-label">Franchisee</label>
+                    <select class="form-select" name="franchisee_id">
+                        <option value="">Not assigned to franchisee</option>
+                        <?php foreach (($franchisees ?? []) as $franchisee): ?>
+                            <option value="<?= (int) $franchisee['id'] ?>">
+                                <?= htmlspecialchars((string) $franchisee['franchisee_name']) ?> (<?= htmlspecialchars((string) $franchisee['franchisee_code']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>

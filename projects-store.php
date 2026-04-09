@@ -50,6 +50,7 @@ $project_code   = trim($_POST['project_code'] ?? '');
 $project_priority = trim($_POST['project_priority'] ?? 'medium');
 $project_name   = trim($_POST['project_name']);
 $customer_id    = ($_POST['customer_id'] ?? '') !== '' ? (int) $_POST['customer_id'] : null;
+$franchisee_id  = ($_POST['franchisee_id'] ?? '') !== '' ? (int) $_POST['franchisee_id'] : null;
 $related_invoice_id = ($_POST['related_invoice_id'] ?? '') !== '' ? (int) $_POST['related_invoice_id'] : null;
 $description    = trim($_POST['description']);
 $project_hours  = (int) $_POST['project_hours'];
@@ -93,6 +94,18 @@ if ($customer_id !== null) {
     $customer_name = (string) $customerRow['customer_name'];
 }
 
+if ($franchisee_id !== null) {
+    $franchiseeStmt = $conn->prepare("SELECT franchisee_name FROM franchisees WHERE id = ? LIMIT 1");
+    $franchiseeStmt->bind_param("i", $franchisee_id);
+    $franchiseeStmt->execute();
+    $franchiseeRow = $franchiseeStmt->get_result()->fetch_assoc();
+    $franchiseeStmt->close();
+
+    if (!$franchiseeRow) {
+        die('Invalid franchisee selected.');
+    }
+}
+
 if ($related_invoice_id !== null) {
     $invoiceStmt = $conn->prepare("SELECT to_name FROM invoices WHERE id = ? LIMIT 1");
     $invoiceStmt->bind_param("i", $related_invoice_id);
@@ -127,6 +140,7 @@ $sql = "
         description,
         customer_name,
         customer_id,
+        franchisee_id,
         related_invoice_id,
         start_date,
         end_date,
@@ -140,16 +154,17 @@ $sql = "
         project_status,
         assigned_user_id,
         created_by
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param(
-    "sssiissssssidssii",
+    "sssiiissssssidssii",
     $project_name,
     $description,
     $customer_name,
     $customer_id,
+    $franchisee_id,
     $related_invoice_id,
     $start_date,
     $end_date,

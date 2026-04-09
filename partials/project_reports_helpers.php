@@ -1,15 +1,21 @@
 <?php
 require_once __DIR__ . '/dashboard_helpers.php';
+require_once __DIR__ . '/../config/project_access.php';
 
 if (!function_exists('iv_fetch_project_report_data')) {
     function iv_fetch_project_report_data(mysqli $conn, int $currentUserId, string $role, array $filters = []): array
     {
         $scopeIds = iv_dashboard_scope_ids($conn, $currentUserId, $role);
         $scopeIn = iv_dashboard_format_in_clause($scopeIds);
+        $franchiseeId = iv_current_session_franchisee_id();
 
         $projectScope = $role === 'master'
             ? '1=1'
-            : "(p.created_by IN ($scopeIn) OR p.assigned_user_id IN ($scopeIn))";
+            : iv_project_scope_condition($scopeIds, 'p');
+
+        if ($role !== 'master' && $franchiseeId !== null) {
+            $projectScope .= " AND p.franchisee_id = " . (int) $franchiseeId;
+        }
 
         $statusFilter = trim((string) ($filters['status'] ?? ''));
         $priorityFilter = trim((string) ($filters['priority'] ?? ''));

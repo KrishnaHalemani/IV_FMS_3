@@ -12,12 +12,7 @@ if (!isset($_SESSION['user_id'], $_SESSION['role'])) {
     exit;
 }
 
-if (getRoleLevel((string) $_SESSION['role']) < getRoleLevel('master')) {
-    http_response_code(403);
-    exit('Forbidden');
-}
-
-$dashboardRole = 'master';
+$dashboardRole = (string) $_SESSION['role'];
 $dashboardMetrics = iv_fetch_dashboard_metrics($conn, (int) $_SESSION['user_id'], $dashboardRole);
 
 include 'header.php';
@@ -36,7 +31,7 @@ include 'header.php';
                 </div>
                 <ul class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Dashboard</a></li>
-                    <li class="breadcrumb-item">Master</li>
+                    <li class="breadcrumb-item"><?= htmlspecialchars(ucfirst($dashboardRole)) ?></li>
                 </ul>
             </div>
         </div>

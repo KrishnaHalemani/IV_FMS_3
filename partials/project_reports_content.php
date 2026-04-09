@@ -127,7 +127,9 @@ $priorityTotal = max(1, array_sum(array_map(static fn($row) => (int) $row['total
                     <p class="mb-4 text-white text-opacity-75"><?= htmlspecialchars($roleDescriptions[$reportRole] ?? 'Project performance and risk visibility for your workspace.') ?></p>
                     <div class="d-flex flex-wrap gap-2">
                         <a href="<?= htmlspecialchars($reportProjectsPath) ?>" class="btn btn-light">Open Projects</a>
-                        <a href="<?= htmlspecialchars($reportCreatePath) ?>" class="btn btn-outline-light">Create Project</a>
+                <?php if ($reportCreatePath !== ''): ?>
+                    <a href="<?= htmlspecialchars($reportCreatePath) ?>" class="btn btn-outline-light">Create Project</a>
+                <?php endif; ?>
                     </div>
                 </div>
                 <div class="col-lg-5">
