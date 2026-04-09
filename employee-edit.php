@@ -3,6 +3,7 @@ require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/user_management.php';
 require_once __DIR__ . '/config/current_user.php';
 require_once __DIR__ . '/config/access_control.php';
+require_once __DIR__ . '/config/employee_roles.php';
 
 iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
@@ -43,7 +44,7 @@ if (!$data) {
 $currentRole = $data['role'] ?? '';
 $currentFranchiseeId = $data['franchisee_id'] ?? null;
 $allowedSystemRoles = isset($_SESSION['role']) ? getCreatableRoles((string) $_SESSION['role']) : [];
-$jobRoleOptions = ['Developer', 'Designer', 'Manager', 'QA'];
+$jobRoleOptions = iv_employee_job_role_options();
 if ($currentRole !== '' && !in_array($currentRole, $jobRoleOptions, true) && !in_array(strtolower($currentRole), ['super', 'admin', 'user'], true)) {
     array_unshift($jobRoleOptions, $currentRole);
 }

@@ -2,6 +2,8 @@
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/current_user.php';
 require_once __DIR__ . '/config/access_control.php';
+require_once __DIR__ . '/config/notifications.php';
+require_once __DIR__ . '/config/roles.php';
 
 iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
@@ -12,7 +14,7 @@ if (isset($_GET['delete_id'])) {
     $franchiseeId = iv_current_session_franchisee_id();
 
     $lookupSql = "
-        SELECT id, user_id, franchisee_id
+        SELECT id, user_id, franchisee_id, name
         FROM employees
         WHERE id = ?
     ";
@@ -30,10 +32,50 @@ if (isset($_GET['delete_id'])) {
     if ($employeeToDelete) {
         $linkedUserId = !empty($employeeToDelete['user_id']) ? (int) $employeeToDelete['user_id'] : null;
         $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        $linkedUsername = null;
+        $linkedRole = null;
+        $unassignedProjects = [];
 
         if ($linkedUserId !== null && $linkedUserId === $currentUserId) {
             header("Location: employee.php?delete_error=self");
             exit;
+        }
+
+        if ($linkedUserId !== null) {
+            $userLookup = $conn->prepare("SELECT username, role FROM users WHERE id = ? LIMIT 1");
+            $userLookup->bind_param("i", $linkedUserId);
+            $userLookup->execute();
+            $linkedUser = $userLookup->get_result()->fetch_assoc();
+            $userLookup->close();
+
+            if ($linkedUser) {
+                $linkedUsername = (string) ($linkedUser['username'] ?? '');
+                $linkedRole = (string) ($linkedUser['role'] ?? '');
+            }
+
+            if ($linkedRole !== '' && getRoleLevel($sessionRole) <= getRoleLevel($linkedRole)) {
+                header("Location: employee.php?delete_error=forbidden");
+                exit;
+            }
+
+            $projectLookup = $conn->prepare("
+                SELECT id, project_name
+                FROM projects
+                WHERE assigned_user_id = ?
+                ORDER BY created_at DESC
+            ");
+            $projectLookup->bind_param("i", $linkedUserId);
+            $projectLookup->execute();
+            $projectResult = $projectLookup->get_result();
+
+            while ($projectRow = $projectResult->fetch_assoc()) {
+                $unassignedProjects[] = [
+                    'id' => (int) ($projectRow['id'] ?? 0),
+                    'project_name' => (string) ($projectRow['project_name'] ?? ''),
+                ];
+            }
+
+            $projectLookup->close();
         }
 
         $conn->begin_transaction();
@@ -69,6 +111,59 @@ if (isset($_GET['delete_id'])) {
                     throw new RuntimeException('Unable to delete the linked login account.');
                 }
                 $deleteUser->close();
+            }
+
+            if ($linkedRole === 'super') {
+                $masterUsers = [];
+                $mastersResult = $conn->query("SELECT id FROM users WHERE role = 'master'");
+                if ($mastersResult) {
+                    while ($masterRow = $mastersResult->fetch_assoc()) {
+                        $masterUsers[] = (int) ($masterRow['id'] ?? 0);
+                    }
+                }
+
+                $actorName = (string) ($_SESSION['username'] ?? $_SESSION['email'] ?? 'A manager');
+                $displayName = trim((string) ($employeeToDelete['name'] ?? ''));
+                if ($linkedUsername !== null && $linkedUsername !== '') {
+                    $displayName = $displayName !== ''
+                        ? $displayName . ' (' . $linkedUsername . ')'
+                        : $linkedUsername;
+                }
+                if ($displayName === '') {
+                    $displayName = 'A super account';
+                }
+
+                iv_create_notifications_for_users(
+                    $conn,
+                    $masterUsers,
+                    'super_deleted',
+                    'Super account deleted',
+                    $actorName . ' deleted super account ' . $displayName . '.',
+                    'user-management.php',
+                    $currentUserId
+                );
+
+                if ($unassignedProjects !== []) {
+                    $projectNames = array_map(
+                        static fn(array $project): string => (string) ($project['project_name'] ?? ''),
+                        $unassignedProjects
+                    );
+                    $projectNames = array_values(array_filter($projectNames, static fn(string $name): bool => $name !== ''));
+                    $projectSummary = implode(', ', array_slice($projectNames, 0, 3));
+                    if (count($projectNames) > 3) {
+                        $projectSummary .= ' +' . (count($projectNames) - 3) . ' more';
+                    }
+
+                    iv_create_notifications_for_users(
+                        $conn,
+                        $masterUsers,
+                        'project_unassigned',
+                        'Projects became unassigned',
+                        $displayName . ' was removed and ' . count($unassignedProjects) . ' project(s) were unassigned' . ($projectSummary !== '' ? ': ' . $projectSummary . '.' : '.'),
+                        'projects.php',
+                        $currentUserId
+                    );
+                }
             }
 
             $conn->commit();
@@ -219,6 +314,7 @@ $result = $conn->query("
                                         $deleteError = (string) $_GET['delete_error'];
                                         echo match ($deleteError) {
                                             'self' => 'You cannot delete the employee record linked to your own logged-in account.',
+                                            'forbidden' => 'You cannot delete an employee linked to an equal or higher system role.',
                                             'missing' => 'Employee not found or you do not have permission to delete it.',
                                             default => 'Unable to delete this employee right now. Please try again.',
                                         };
@@ -248,6 +344,10 @@ $result = $conn->query("
                                             <?php if ($result && $result->num_rows > 0): ?>
                                                 <?php while ($row = $result->fetch_assoc()): ?>
                                                     <tr>
+                                                        <?php
+                                                        $linkedRoleForRow = (string) ($row['linked_role'] ?? '');
+                                                        $canDeleteEmployee = $linkedRoleForRow === '' || getRoleLevel((string) ($_SESSION['role'] ?? '')) > getRoleLevel($linkedRoleForRow);
+                                                        ?>
                                                         <td><input type="checkbox"></td>
 
                                                         <td><?= htmlspecialchars($row['name']) ?></td>
@@ -273,6 +373,7 @@ $result = $conn->query("
 
                                                         <td>
                                                             <?php
+                                                            $projectNamesForDelete = [];
                                                             if (!empty($row['assigned_projects'])) {
 
                                                                 $projects = explode('||', $row['assigned_projects']);
@@ -290,6 +391,7 @@ $result = $conn->query("
                                                                     <ul class="project-list" id="project-list-<?= $employeeId ?>">
                                                                         <?php foreach ($projects as $project):
                                                                             list($projectId, $projectName) = explode('::', $project);
+                                                                            $projectNamesForDelete[] = $projectName;
                                                                         ?>
                                                                             <li>
                                                                                 <a href="projects-view.php?id=<?= $projectId ?>">
@@ -316,11 +418,20 @@ $result = $conn->query("
                                                                 <i class="feather-edit"></i>
                                                             </a>
 
-                                                            <a href="?delete_id=<?= $row['id'] ?>"
-                                                                onclick="return confirm('Delete this employee?')"
-                                                                class="btn btn-sm btn-danger">
-                                                                <i class="feather-trash-2"></i>
-                                                            </a>
+                                                            <?php if ($canDeleteEmployee): ?>
+                                                                <a href="?delete_id=<?= $row['id'] ?>"
+                                                                    data-employee-name="<?= htmlspecialchars((string) $row['name'], ENT_QUOTES, 'UTF-8') ?>"
+                                                                    data-login-access="<?= htmlspecialchars(!empty($row['linked_username']) ? ((string) $row['linked_username'] . ' (' . ucfirst((string) $row['linked_role']) . ')') : 'No login', ENT_QUOTES, 'UTF-8') ?>"
+                                                                    data-projects="<?= htmlspecialchars(implode(' || ', $projectNamesForDelete), ENT_QUOTES, 'UTF-8') ?>"
+                                                                    onclick="return confirmEmployeeDeletion(this)"
+                                                                    class="btn btn-sm btn-danger">
+                                                                    <i class="feather-trash-2"></i>
+                                                                </a>
+                                                            <?php else: ?>
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="You cannot delete this system role">
+                                                                    <i class="feather-lock"></i>
+                                                                </button>
+                                                            <?php endif; ?>
 
                                                         </td>
                                                     </tr>
@@ -359,6 +470,22 @@ $result = $conn->query("
         });
     </script>
     <script>
+        function confirmEmployeeDeletion(link) {
+            const employeeName = link.dataset.employeeName || 'this employee';
+            const loginAccess = link.dataset.loginAccess || 'No login';
+            const projects = (link.dataset.projects || '').trim();
+            const projectText = projects !== ''
+                ? '\nAssigned projects:\n- ' + projects.split(' || ').join('\n- ')
+                : '\nAssigned projects:\n- None';
+
+            return confirm(
+                'Delete ' + employeeName + '?\n'
+                + 'Login access: ' + loginAccess + '\n'
+                + projectText + '\n\n'
+                + 'Any directly assigned projects will become unassigned.'
+            );
+        }
+
         function toggleProjectList(id) {
 
             var list = document.getElementById("project-list-" + id);

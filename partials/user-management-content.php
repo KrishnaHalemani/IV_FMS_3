@@ -45,6 +45,7 @@ $roleDescriptions = [
                                     <th>Username</th>
                                     <th>Email</th>
                                     <th>Role</th>
+                                    <th>Franchisee</th>
                                     <th>Created By</th>
                                     <th>Created At</th>
                                 </tr>
@@ -56,6 +57,13 @@ $roleDescriptions = [
                                     if (!empty($user['creator_name'])) {
                                         $creatorLabel = $user['creator_name'] . ' (' . ucfirst((string) $user['creator_role']) . ')';
                                     }
+                                    $franchiseeLabel = 'Not assigned';
+                                    if (!empty($user['franchisee_name'])) {
+                                        $franchiseeLabel = $user['franchisee_name'];
+                                        if (!empty($user['franchisee_code'])) {
+                                            $franchiseeLabel .= ' (' . $user['franchisee_code'] . ')';
+                                        }
+                                    }
                                     ?>
                                     <tr>
                                         <td><?= htmlspecialchars((string) $user['username'], ENT_QUOTES, 'UTF-8') ?></td>
@@ -63,6 +71,7 @@ $roleDescriptions = [
                                         <td>
                                             <span class="badge bg-soft-primary text-primary"><?= htmlspecialchars(ucfirst((string) $user['role']), ENT_QUOTES, 'UTF-8') ?></span>
                                         </td>
+                                        <td><?= htmlspecialchars($franchiseeLabel, ENT_QUOTES, 'UTF-8') ?></td>
                                         <td><?= htmlspecialchars($creatorLabel, ENT_QUOTES, 'UTF-8') ?></td>
                                         <td><?= !empty($user['created_at']) ? htmlspecialchars(date('d M Y, h:i A', strtotime((string) $user['created_at'])), ENT_QUOTES, 'UTF-8') : '-' ?></td>
                                     </tr>

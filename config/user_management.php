@@ -45,9 +45,13 @@ if (!function_exists('buildVisibleUsersQuery')) {
                 u.created_at,
                 u.created_by,
                 creator.username AS creator_name,
-                creator.role AS creator_role
+                creator.role AS creator_role,
+                f.franchisee_name,
+                f.franchisee_code
             FROM users u
             LEFT JOIN users creator ON creator.id = u.created_by
+            LEFT JOIN employees e ON e.user_id = u.id
+            LEFT JOIN franchisees f ON f.id = e.franchisee_id
         ";
 
         return match ($role) {

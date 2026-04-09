@@ -3,6 +3,7 @@ require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/user_management.php';
 require_once __DIR__ . '/config/current_user.php';
 require_once __DIR__ . '/config/access_control.php';
+require_once __DIR__ . '/config/employee_roles.php';
 
 iv_require_role_session(['master', 'super', 'admin'], 'login.php');
 
@@ -14,7 +15,7 @@ $franchisee_id = "";
 $create_login_account = false;
 $login_username = "";
 $login_role = "user";
-$jobRoleOptions = ['Developer', 'Designer', 'Manager', 'QA'];
+$jobRoleOptions = iv_employee_job_role_options();
 $sessionRole = (string) ($_SESSION['role'] ?? '');
 $lockedFranchiseeId = $sessionRole !== 'master' ? iv_current_session_franchisee_id() : null;
 $lockedFranchisee = null;
